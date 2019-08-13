@@ -58,7 +58,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'graphAPI',
-    'sdn_communication'
+    'sdn_communication',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
