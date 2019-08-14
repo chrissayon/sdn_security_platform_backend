@@ -30,7 +30,7 @@ def send_import_summary():
     json_response = response.json()
     print(json_response["1"][2]["rx_packets"])
     #switch_instance = Switch.objects.create(switch_number = json_response["1"][2]["rx_packets"])
-    switch_instance = Switch.objects.create()
+    switch_instance = Switch.objects.create(switch_id=json_response["1"][2]["rx_packets"])
 
     #print(response.json())
 
