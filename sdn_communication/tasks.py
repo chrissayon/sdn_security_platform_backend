@@ -17,18 +17,25 @@
 # def xsum(numbers):
 #     return sum(numbers)
 
-from celery import task 
-from celery import shared_task 
-import requests 
-# We can have either registered task 
-@task(name='summary') 
+from celery import task
+from celery import shared_task
+import requests
+
+from .models import Switch
+
+# We can have either registered task
+@task(name='summary')
 def send_import_summary():
     response = requests.get('http://0.0.0.0:8080/stats/port/1')
-    print(response)
-    # Magic happens here ... 
-# or 
+    json_response = response.json()
+    print(json_response["1"][2]["rx_packets"])
+    #switch_instance = Switch.objects.create(switch_number = json_response["1"][2]["rx_packets"])
+    switch_instance = Switch.objects.create()
 
-# @shared_task 
+    #print(response.json())
+
+
+# @shared_task
 # def send_notifiction():
 #     print("Hi")
 #      # Another trick
