@@ -19,10 +19,12 @@
 
 from celery import task 
 from celery import shared_task 
+import requests 
 # We can have either registered task 
 @task(name='summary') 
 def send_import_summary():
-    print("Hi")
+    response = requests.get('http://0.0.0.0:8080/stats/port/1')
+    print(response)
     # Magic happens here ... 
 # or 
 
