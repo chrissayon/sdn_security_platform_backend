@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Switch
+from .models import SwitchHardware
 # Register your models here.
 
-admin.site.register(Switch)
+admin.site.register(SwitchHardware)
