@@ -7,7 +7,6 @@ class DescStats(models.Model):
     hw_desc = models.CharField(default = "", max_length = 50)
     sw_desc = models.CharField(default = "", max_length = 50)
     serial_num = models.CharField(default = "", max_length = 50)
-    dp_desc= models.CharField(default = "", max_length = 50)
 
 class FlowStats(models.Model):
     '''Flow Table information'''
