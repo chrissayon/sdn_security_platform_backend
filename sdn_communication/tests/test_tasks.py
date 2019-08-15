@@ -9,6 +9,8 @@ class TasksTestCase(TestCase):
     
     @classmethod
     def setUpTestData(cls):
+
+        #Description hardware response
         cls.switch_desc_response = Response()
         cls.switch_desc_response.status_code = 200
         cls.switch_desc_response._content = b'{ "1" : {"dp_desc" : "Apple",\
