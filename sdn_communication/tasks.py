@@ -49,13 +49,21 @@ def write_switch_desc(response_data):
         json_data = json_data_full[dict_keys[0]]
         # print(json_data)
 
-        switch_desc_instance = DescStats.objects.create(
-            dp_desc = json_data["dp_desc"],
-            mfr_desc = json_data["mfr_desc"],
-            hw_desc = json_data["hw_desc"],
-            sw_desc = json_data["sw_desc"],
-            serial_num = json_data["serial_num"],
-        )
+        try:
+            desc_stats_instance = DescStats.objects.get(id=1)
+            desc_stats_instance.dp_desc = json_data["dp_desc"],
+            desc_stats_instance.mfr_desc = json_data["mfr_desc"],
+            desc_stats_instance.hw_desc = json_data["hw_desc"],
+            desc_stats_instance.sw_desc = json_data["sw_desc"],
+            desc_stats_instance.serial_num = json_data["serial_num"],
+        except DescStats.DoesNotExist:
+            switch_desc_instance = DescStats.objects.create(
+                dp_desc = json_data["dp_desc"],
+                mfr_desc = json_data["mfr_desc"],
+                hw_desc = json_data["hw_desc"],
+                sw_desc = json_data["sw_desc"],
+                serial_num = json_data["serial_num"],
+            )
 
         return True
         
