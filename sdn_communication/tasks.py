@@ -1,12 +1,8 @@
-# # Create your tasks here
-# from __future__ import absolute_import, unicode_literals
-
 from celery import task
 from celery import shared_task
 from rest_framework import status
 import requests
 
-#from .models import Switch#, SwitchHardware
 from .models import DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats
 
 def get_switch_number():
