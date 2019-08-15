@@ -23,7 +23,6 @@ Keras-Preprocessing==1.0.9
 kombu==4.6.3
 Markdown==3.1.1
 mccabe==0.6.1
-mkl-service==2.1.0
 numpy==1.17.0
 protobuf==3.9.1
 pycodestyle==2.5.0
