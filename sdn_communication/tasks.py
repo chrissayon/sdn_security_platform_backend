@@ -35,9 +35,9 @@ def write_switch_number(json_data):
 
 def write_switch_desc(response_data):
     '''Write to database hardware description column'''
-    
+
     if response_data.status_code != status.HTTP_200_OK:
-        return False    
+        return False
     else:
         json_data_full = response_data.json()
         json_keys = json_data_full.keys()
@@ -66,38 +66,40 @@ def write_switch_desc(response_data):
 
 def write_flow_stats(response_data):
     '''Write to database hardware description column'''
-    
+
     if response_data.status_code != status.HTTP_200_OK:
-        return False    
+        return False
     else:
         json_data_full = response_data.json()
         json_keys = json_data_full.keys()
         dict_keys = list(json_keys)
         json_data = json_data_full[dict_keys[0]]
-        #print(json_data[0]["actions"])
-        
+        max_loop = len(json_data)
+        #print(max_loop)
+
         # Cycle through all the flow entries
-        for i in json_data:
+        for i in range(0, max_loop):
             try:
+                print(i)
                 flow_stats_instance               = FlowStats.objects.get(id = i + 1)
-                flow_stats_instance.dpid          = dict_keys[i],
-                flow_stats_instance.actions       = json_data[i]["actions"],
-                flow_stats_instance.idle_timeout  = json_data[i]["idle_timeout"],
-                flow_stats_instance.cookie        = json_data[i]["cookie"],
-                flow_stats_instance.packet_count  = json_data[i]["packet_count"],
-                flow_stats_instance.hard_timeout  = json_data[i]["hard_timeout"],
-                flow_stats_instance.byte_count    = json_data[i]["byte_count"],
-                flow_stats_instance.duration_sec  = json_data[i]["duration_sec"],
-                flow_stats_instance.duration_nsec = json_data[i]["duration_nsec"],
-                flow_stats_instance.priority      = json_data[i]["priority"],
-                flow_stats_instance.length        = json_data[i]["length"],
-                flow_stats_instance.flags         = json_data[i]["flags"],
-                flow_stats_instance.table_id      = json_data[i]["table_id"],
-                flow_stats_instance.match         = json_data[i]["match"],
+                flow_stats_instance.dpid          = dict_keys[0]
+                flow_stats_instance.actions       = json_data[i]["actions"]
+                flow_stats_instance.idle_timeout  = json_data[i]["idle_timeout"]
+                flow_stats_instance.cookie        = json_data[i]["cookie"]
+                flow_stats_instance.packet_count  = json_data[i]["packet_count"]
+                flow_stats_instance.hard_timeout  = json_data[i]["hard_timeout"]
+                flow_stats_instance.byte_count    = json_data[i]["byte_count"]
+                flow_stats_instance.duration_sec  = json_data[i]["duration_sec"]
+                flow_stats_instance.duration_nsec = json_data[i]["duration_nsec"]
+                flow_stats_instance.priority      = json_data[i]["priority"]
+                flow_stats_instance.length        = json_data[i]["length"]
+                flow_stats_instance.flags         = json_data[i]["flags"]
+                flow_stats_instance.table_id      = json_data[i]["table_id"]
+                flow_stats_instance.match         = json_data[i]["match"]
                 flow_stats_instance.save()
-            except DescStats.DoesNotExist:
+            except FlowStats.DoesNotExist:
                 flow_stats_instance = FlowStats.objects.create(
-                        dpid          = dict_keys[i],
+                        dpid          = dict_keys[0],
                         actions       = json_data[i]["actions"],
                         idle_timeout  = json_data[i]["idle_timeout"],
                         cookie        = json_data[i]["cookie"],
