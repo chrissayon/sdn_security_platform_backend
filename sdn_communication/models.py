@@ -30,7 +30,7 @@ class FlowStats(models.Model):
     match         = models.CharField(default = "", max_length = 50)
     created       = models.DateTimeField(auto_now_add = True)
     last_modified = models.DateTimeField(auto_now = True)
-    
+
 
 class FlowAggregateStats(models.Model):
     '''Total amount of packets sent'''

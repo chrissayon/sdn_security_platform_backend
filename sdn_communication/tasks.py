@@ -27,7 +27,7 @@ def get_agg_flow_stats():
 
 def get_port_stats():
     '''Check the port stats on the switch'''
-    response = requests.get('http://0.0.0.0:8080/stats/port/1/1')
+    response = requests.get('http://0.0.0.0:8080/stats/port/1')
     return response
 
 def write_switch_number(json_data):
@@ -86,14 +86,14 @@ def write_port_stats(response_data):
                 port_stats_instance.dpid          = dict_keys[0]
                 port_stats_instance.tx_dropped    = json_data[i]["tx_dropped"]
                 port_stats_instance.rx_packets    = json_data[i]["rx_packets"]
-                port_stats_instance.ex_crc_err    = json_data[i]["ex_crc_err"]
+                port_stats_instance.rx_crc_err    = json_data[i]["rx_crc_err"]
                 port_stats_instance.tx_bytes      = json_data[i]["tx_bytes"]
                 port_stats_instance.rx_dropped    = json_data[i]["rx_dropped"]
                 port_stats_instance.port_no       = json_data[i]["port_no"]
                 port_stats_instance.rx_over_err   = json_data[i]["rx_over_err"]
                 port_stats_instance.rx_frame_err  = json_data[i]["rx_frame_err"]
                 port_stats_instance.rx_bytes      = json_data[i]["rx_bytes"]
-                port_stats_instance.tx_errors     = json_data[i]["tx_erros"]
+                port_stats_instance.tx_errors     = json_data[i]["tx_errors"]
                 port_stats_instance.duration_nsec = json_data[i]["duration_nsec"]
                 port_stats_instance.collisions    = json_data[i]["collisions"]
                 port_stats_instance.duration_sec  = json_data[i]["duration_sec"]
@@ -189,6 +189,7 @@ def write_flow_stats(response_data):
                 flow_stats_instance.table_id      = json_data[i]["table_id"]
                 flow_stats_instance.match         = json_data[i]["match"]
                 flow_stats_instance.save()
+                print(flow_stats_instance.last_modified)
             except FlowStats.DoesNotExist:
                 # If entry doesn't exists, create a new one
                 flow_stats_instance = FlowStats.objects.create(
@@ -217,4 +218,10 @@ def sdn_data_retreieval():
     switch_desc_result = write_switch_desc(switch_desc)
 
     flow_stats = get_flow_stats()
-    flow_stat_result = write_flow_stats(flow_stats)
+    flow_stats_result = write_flow_stats(flow_stats)
+
+    agg_flow_stats = get_agg_flow_stats()
+    agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
+
+    port_stats = get_port_stats()
+    port_stats_result = write_port_stats(port_stats)
