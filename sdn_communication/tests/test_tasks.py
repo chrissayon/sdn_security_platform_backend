@@ -1,6 +1,6 @@
 from django.test import TestCase
 from sdn_communication.tasks import get_switch_number, get_switch_desc, get_flow_stats, get_agg_flow_stats, get_port_stats
-from sdn_communication.tasks import write_switch_desc, write_flow_stats
+from sdn_communication.tasks import write_switch_desc, write_flow_stats, write_agg_flow_stats, write_port_stats
 from sdn_communication.models import Switch, DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats 
 from rest_framework import status
 from requests.models import Response
@@ -10,7 +10,7 @@ class TasksTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        #Description hardware response
+        # Flow statistics response
         cls.flow_stats_response = Response()
         cls.flow_stats_response.status_code = 200
         cls.flow_stats_response._content = b'{ "1" : [{ \
@@ -32,7 +32,7 @@ class TasksTestCase(TestCase):
                 "in_port" : "3" }, \
             "serial_num" : "1234" }]}'
         
-        #Description hardware response
+        # Description hardware response
         cls.switch_desc_response = Response()
         cls.switch_desc_response.status_code = 200
         cls.switch_desc_response._content = b'{ "1" : {"dp_desc" : "None",\
@@ -40,12 +40,45 @@ class TasksTestCase(TestCase):
             "hw_desc"    : "Open VSwitch",  \
             "sw_desc"    : "None",          \
             "serial_num" : "Nicira, Inc." }}'
+        
+        cls.flow_agg_stats_response = Response()
+        cls.flow_agg_stats_response.status_code = 200
+        cls.flow_agg_stats_response._content = b'{ "1" : [{\
+            "packet_count" : "102",   \
+            "byte_count"   : "8080",  \
+            "flow_count"   : "5" }]}'
 
+        cls.port_stats_response = Response()
+        cls.port_stats_response.status_code = 200
+        cls.port_stats_response._content =b'{ "1" : [{ \
+            "tx_dropped"    : "0",        \
+            "rx_packets"    : "0",        \
+            "rx_crc_err"    : "0",        \
+            "tx_bytes"      : "0",        \
+            "rx_dropped"    : "64",       \
+            "port_no"       : "LOCAL",    \
+            "rx_over_err"   : "0",        \
+            "rx_frame_err"  : "0",        \
+            "rx_bytes"      : "0",        \
+            "tx_errors"     : "104",      \
+            "duration_nsec" : "15000000", \
+            "collisions"    : "0",        \
+            "duration_sec"  : "26489",    \
+            "rx_errors"     : "0",        \
+            "tx_packets"    : "0"}]}'
 
     def test_write_switch_desc(self):
-        """Writing the hardware description"""
-        #switch_desc = DescStats.objects.get(dp_desc = "Apple")
+        """Writing the hardware description to the database"""
         self.assertEqual(write_switch_desc(self.switch_desc_response), True)
 
     def test_write_flow_stats(self):
+        """Writing flow stats to the database"""
         self.assertEqual(write_flow_stats(self.flow_stats_response), True)
+
+    def test_write_flow_agg_stats(self):
+        """Writing aggregate flow to the database"""
+        self.assertEqual(write_agg_flow_stats(self.flow_agg_stats_response), True)
+
+    def test_write_port_stats(self):
+        """Write port statistics to the database"""
+        self.assertEqual(write_port_stats(self.port_stats_response), True)
