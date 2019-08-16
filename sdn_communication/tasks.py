@@ -90,6 +90,7 @@ def write_flow_stats(response_data):
                 length        = json_data[0]["length"],
                 flags         = json_data[0]["flags"],
                 table_id      = json_data[0]["table_id"],
+                match         = json_data[0]["match"],
         )
 
         return True
@@ -98,4 +99,7 @@ def write_flow_stats(response_data):
 @task(name='summary')
 def sdn_data_retreieval():
     switch_desc = get_switch_desc()
-    test = write_switch_desc(switch_desc)
+    switch_desc_result = write_switch_desc(switch_desc)
+
+    flow_stats = get_flow_stats()
+    flow_stat_result = write_flow_stats(flow_stats)
