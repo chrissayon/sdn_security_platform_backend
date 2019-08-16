@@ -8,6 +8,13 @@ class DescStats(models.Model):
     sw_desc = models.CharField(default = "", max_length = 50)
     serial_num = models.CharField(default = "", max_length = 50)
 
+class ArrayField(models.Field):
+    description = "Field to hold arrays"
+
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = 104
+        super().__init__(*args, **kwargs)
+
 class FlowStats(models.Model):
     '''Flow Table information'''
     dpid = models.IntegerField(default = 0)
@@ -23,7 +30,7 @@ class FlowStats(models.Model):
     length = models.IntegerField(default = 0)
     flags = models.IntegerField(default = 0)
     table_id = models.IntegerField(default = 0)
-    actions = models.CharField(default = "", max_length = 50)
+    match = models.CharField(default = "", max_length = 50)
 
 class FlowAggregateStats(models.Model):
     '''Total amount of packets sent'''

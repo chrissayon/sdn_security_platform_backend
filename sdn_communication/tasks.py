@@ -46,23 +46,54 @@ def write_switch_desc(response_data):
         # print(json_data)
 
         try:
-            desc_stats_instance = DescStats.objects.get(id=1)
-            desc_stats_instance.dp_desc = json_data["dp_desc"],
-            desc_stats_instance.mfr_desc = json_data["mfr_desc"],
-            desc_stats_instance.hw_desc = json_data["hw_desc"],
-            desc_stats_instance.sw_desc = json_data["sw_desc"],
+            desc_stats_instance            = DescStats.objects.get(id=1)
+            desc_stats_instance.dp_desc    = json_data["dp_desc"],
+            desc_stats_instance.mfr_desc   = json_data["mfr_desc"],
+            desc_stats_instance.hw_desc    = json_data["hw_desc"],
+            desc_stats_instance.sw_desc    = json_data["sw_desc"],
             desc_stats_instance.serial_num = json_data["serial_num"],
         except DescStats.DoesNotExist:
             switch_desc_instance = DescStats.objects.create(
-                dp_desc = json_data["dp_desc"],
-                mfr_desc = json_data["mfr_desc"],
-                hw_desc = json_data["hw_desc"],
-                sw_desc = json_data["sw_desc"],
+                dp_desc    = json_data["dp_desc"],
+                mfr_desc   = json_data["mfr_desc"],
+                hw_desc    = json_data["hw_desc"],
+                sw_desc    = json_data["sw_desc"],
                 serial_num = json_data["serial_num"],
             )
 
         return True
+
+def write_flow_stats(response_data):
+    '''Write to database hardware description column'''
+    
+    if response_data.status_code != status.HTTP_200_OK:
+        return False    
+    else:
+        json_data_full = response_data.json()
+        json_keys = json_data_full.keys()
+        dict_keys = list(json_keys)
+        json_data = json_data_full[dict_keys[0]]
+        #print(json_data[0]["actions"])
+
         
+        flow_stats_instance = FlowStats.objects.create(
+                dpid          = dict_keys[0],
+                actions       = json_data[0]["actions"],
+                idle_timeout  = json_data[0]["idle_timeout"],
+                cookie        = json_data[0]["cookie"],
+                packet_count  = json_data[0]["packet_count"],
+                hard_timeout  = json_data[0]["hard_timeout"],
+                byte_count    = json_data[0]["byte_count"],
+                duration_sec  = json_data[0]["duration_sec"],
+                duration_nsec = json_data[0]["duration_nsec"],
+                priority      = json_data[0]["priority"],
+                length        = json_data[0]["length"],
+                flags         = json_data[0]["flags"],
+                table_id      = json_data[0]["table_id"],
+        )
+
+        return True
+
 
 @task(name='summary')
 def sdn_data_retreieval():
