@@ -11,5 +11,5 @@ class DescStatsView(APIView):
     def get(self, request):
         descstats = DescStats.objects.all()
         serializer = DescStatsSerializer(descstats, many=True)
-        print(serializer.data)
+        #print(serializer.data)
         return Response(serializer.data)

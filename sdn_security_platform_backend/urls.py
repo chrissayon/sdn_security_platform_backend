@@ -21,7 +21,7 @@ from sdn_communication import views
 urlpatterns = [
     path('graphAPI/', include('graphAPI.urls')),
     path('admin/', admin.site.urls),
-    path('sdn_communication/', views.DescStatsView.as_view()),
+    path('sdn_communication/', views.DescStatsView.as_view(), name='desc-api'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
