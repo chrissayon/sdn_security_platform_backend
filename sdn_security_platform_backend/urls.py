@@ -15,8 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.urlpatterns import format_suffix_patterns
+from sdn_communication import views
 
 urlpatterns = [
     path('graphAPI/', include('graphAPI.urls')),
     path('admin/', admin.site.urls),
+    path('sdn_communication/', views.DescStatsView.as_view()),
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
