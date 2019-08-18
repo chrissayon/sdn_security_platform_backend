@@ -9,7 +9,31 @@ from .serializers import DescStatsSerializer, FlowStatsSerializer,FlowAggregateS
 class DescStatsView(APIView):
 
     def get(self, request):
-        descstats = DescStats.objects.all()
-        serializer = DescStatsSerializer(descstats, many=True)
+        desc_stats = DescStats.objects.get(id=1)
+        serializer = DescStatsSerializer(desc_stats)
+        #print(serializer.data)
+        return Response(serializer.data)
+
+class FlowStatsView(APIView):
+
+    def get(self, request):
+        flow_stats = FlowStats.objects.all()
+        serializer = FlowStatsSerializer(flow_stats, many=True)
+        #print(serializer.data)
+        return Response(serializer.data)
+
+class FlowAggregateStatsView(APIView):
+
+    def get(self, request):
+        flow_agg_stats = FlowAggregateStats.objects.get(id = 1)
+        serializer = FlowStatsSerializer(flow_agg_stats)
+        #print(serializer.data)
+        return Response(serializer.data)
+
+class PortStatsView(APIView):
+
+    def get(self, request):
+        port_stats = PortStats.objects.all()
+        serializer = PortStatsSerializer(port_stats, many=True)
         #print(serializer.data)
         return Response(serializer.data)
