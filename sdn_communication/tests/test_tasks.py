@@ -1,9 +1,9 @@
 from django.test import TestCase
 from sdn_communication.tasks import get_switch_number, get_switch_desc, get_flow_stats, get_agg_flow_stats, get_port_stats
 from sdn_communication.tasks import write_switch_desc, write_flow_stats, write_agg_flow_stats, write_port_stats
-from sdn_communication.tasks import write_flow_agg_diff_stats
+from sdn_communication.tasks import write_flow_agg_diff_stats, write_port_diff_stats
 from sdn_communication.models import Switch, DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats 
-from sdn_communication.models import FlowAggregateDiffStats
+from sdn_communication.models import FlowAggregateDiffStats, PortDiffStats
 from rest_framework import status
 from requests.models import Response
 
@@ -102,11 +102,18 @@ class TasksDiffTestCase(TestCase):
         FlowAggregateStats.objects.create(byte_count = 350)
     
     def test_flow_agg_diff(self):
-        """Checking the port value difference of two records"""
+        """Writing the flow aggregate difference of two records"""
         self.assertEqual(write_flow_agg_diff_stats(), True)
         flow_agg_stats_diff_instance = FlowAggregateDiffStats.objects.get(id = 1)
         # print(flow_agg_stats_diff_instance.penultimate_flow_fk.id)
         self.assertEqual(flow_agg_stats_diff_instance.byte_count, 150)
+
+    def test_port_diff(self):
+        """Writing the port value difference of two records"""
+        self.assertEqual(write_port_diff_stats(1), True)
+        port_stats_diff_instance = PortDiffStats.objects.get(id = 1)
+        # print(flow_agg_stats_diff_instance.penultimate_flow_fk.id)
+        self.assertEqual(port_stats_diff_instance.tx_dropped, 10)
 
 
 

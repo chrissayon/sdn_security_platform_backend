@@ -215,18 +215,17 @@ def write_flow_stats(response_data):
 def write_flow_agg_diff_stats():
     '''Write flow statistics to database'''
     flow_agg_stats = FlowAggregateStats.objects.all()
-    length_port = len(flow_agg_stats)
+    length_flow_agg = len(flow_agg_stats)
 
     # Check if there are at least two entries
-    if(length_port <= 1):
+    if(length_flow_agg <= 1):
         return False
 
     # Obtain last and second last entry    
-    latest_flow_agg_stats = flow_agg_stats[length_port - 1]
-    penultimate_flow_agg_stats = flow_agg_stats[length_port - 2]
+    latest_flow_agg_stats = flow_agg_stats[length_flow_agg - 1]
+    penultimate_flow_agg_stats = flow_agg_stats[length_flow_agg - 2]
 
     flow_agg_stats_diff_instance = FlowAggregateDiffStats.objects.create(
-        dpid             = latest_flow_agg_stats.dpid,
         packet_count     = latest_flow_agg_stats.packet_count - penultimate_flow_agg_stats.packet_count,
         byte_count       = latest_flow_agg_stats.byte_count - penultimate_flow_agg_stats.byte_count,
         flow_count       = latest_flow_agg_stats.flow_count - penultimate_flow_agg_stats.flow_count,
@@ -237,21 +236,65 @@ def write_flow_agg_diff_stats():
 
     return True
 
+def write_port_diff_stats(port):
+    '''Write flow statistics to database'''
+    port_stats = PortStats.objects.filter(port_no = port) 
+    
+    length_port = len(port_stats)
 
+    # Check if there are at least two entries
+    if(length_port <= 1):
+        return False
+
+    # Obtain last and second last entry    
+    latest_port_stats = port_stats[length_port - 1]
+    penultimate_port_stats = port_stats[length_port - 2]
+    
+    port_stats_instance = PortDiffStats.objects.create(
+        tx_dropped    = latest_port_stats.tx_dropped    - penultimate_port_stats.tx_dropped,
+        rx_packets    = latest_port_stats.rx_packets    - penultimate_port_stats.rx_packets,
+        rx_crc_err    = latest_port_stats.rx_crc_err    - penultimate_port_stats.rx_crc_err,
+        tx_bytes      = latest_port_stats.tx_bytes      - penultimate_port_stats.tx_bytes,
+        rx_dropped    = latest_port_stats.rx_dropped    - penultimate_port_stats.rx_dropped,
+        port_no       = latest_port_stats.port_no,
+        rx_over_err   = latest_port_stats.rx_over_err   - penultimate_port_stats.rx_over_err,
+        rx_frame_err  = latest_port_stats.rx_frame_err  - penultimate_port_stats.rx_frame_err,
+        rx_bytes      = latest_port_stats.rx_bytes      - penultimate_port_stats.rx_bytes,
+        tx_errors     = latest_port_stats.tx_errors     - penultimate_port_stats.tx_errors,
+        duration_nsec = latest_port_stats.duration_nsec - penultimate_port_stats.duration_nsec,
+        collisions    = latest_port_stats.collisions    - penultimate_port_stats.collisions,
+        duration_sec  = latest_port_stats.duration_sec  - penultimate_port_stats.duration_sec,
+        rx_errors     = latest_port_stats.rx_errors     - penultimate_port_stats.rx_errors,
+        tx_packets    = latest_port_stats.tx_packets    - penultimate_port_stats.tx_packets,
+        latest_port_fk      = latest_port_stats,
+        penultimate_port_fk = penultimate_port_stats
+    )
+
+    port_stats_instance.save()
+
+    return True
 
 @task(name='summary')
 def sdn_data_retreieval():
+    # Hardware description
     switch_desc = get_switch_desc()
     switch_desc_result = write_switch_desc(switch_desc)
 
+    # FLow stats
     flow_stats = get_flow_stats()
     flow_stats_result = write_flow_stats(flow_stats)
 
+    # Flow Aggregate stats
     agg_flow_stats = get_agg_flow_stats()
     agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
 
+    # Port Stats
     port_stats = get_port_stats()
     port_stats_result = write_port_stats(port_stats)
 
+    # Flow Aggregate Stats difference
     flow_agg_diff_stats = write_flow_agg_diff_stats()
+    
+    # Port stat difference
+    write_port_diff_stats(1)
 
