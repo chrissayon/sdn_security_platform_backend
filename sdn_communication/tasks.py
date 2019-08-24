@@ -226,10 +226,12 @@ def write_flow_agg_diff_stats():
     penultimate_flow_agg_stats = flow_agg_stats[length_port - 2]
 
     flow_agg_stats_diff_instance = FlowAggregateDiffStats.objects.create(
-        dpid         = latest_flow_agg_stats.dpid,
-        packet_count = latest_flow_agg_stats.packet_count - penultimate_flow_agg_stats.packet_count,
-        byte_count   = latest_flow_agg_stats.byte_count   - penultimate_flow_agg_stats.byte_count,
-        flow_count   = latest_flow_agg_stats.flow_count   - penultimate_flow_agg_stats.flow_count,
+        dpid             = latest_flow_agg_stats.dpid,
+        packet_count     = latest_flow_agg_stats.packet_count - penultimate_flow_agg_stats.packet_count,
+        byte_count       = latest_flow_agg_stats.byte_count - penultimate_flow_agg_stats.byte_count,
+        flow_count       = latest_flow_agg_stats.flow_count - penultimate_flow_agg_stats.flow_count,
+        latest_flow_fk   = latest_flow_agg_stats,
+        penultimate_flow_fk = penultimate_flow_agg_stats,
     )
     flow_agg_stats_diff_instance.save()
 

@@ -100,12 +100,14 @@ class PortDiffStats(models.Model):
 
 class FlowAggregateDiffStats(models.Model):
     '''Total amount of packets sent'''
-    dpid          = models.IntegerField(default = -1)
-    packet_count  = models.IntegerField(default = -1)
-    byte_count    = models.IntegerField(default = -1)
-    flow_count    = models.IntegerField(default = -1)
-    created       = models.DateTimeField(auto_now_add = True)
-    last_modified = models.DateTimeField(auto_now = True)
+    dpid                = models.IntegerField(default = -1)
+    packet_count        = models.IntegerField(default = -1)
+    byte_count          = models.IntegerField(default = -1)
+    flow_count          = models.IntegerField(default = -1)
+    latest_flow_fk      = models.ForeignKey(FlowAggregateStats, on_delete=models.CASCADE, related_name='latest', default = 1)
+    penultimate_flow_fk = models.ForeignKey(FlowAggregateStats, on_delete=models.CASCADE, related_name='penultimate', default = 1)
+    created             = models.DateTimeField(auto_now_add = True)
+    last_modified       = models.DateTimeField(auto_now = True)
 
 class Switch(models.Model):
     switch_number = models.IntegerField(default=0)

@@ -101,15 +101,18 @@ class TasksDiffTestCase(TestCase):
         FlowAggregateStats.objects.create(byte_count = 200)
         FlowAggregateStats.objects.create(byte_count = 350)
     
-    def test_flow_agg_diff_value(self):
+    def test_flow_agg_diff(self):
         """Checking the port value difference of two records"""
         self.assertEqual(write_flow_agg_diff_stats(), True)
         flow_agg_stats_diff_instance = FlowAggregateDiffStats.objects.get(id = 1)
+        # print(flow_agg_stats_diff_instance.penultimate_flow_fk.id)
         self.assertEqual(flow_agg_stats_diff_instance.byte_count, 150)
+
+
 
 class TasksDiffTestCaseNoModel(TestCase):
     
-    def test_port_diff_value(self):
+    def test_flow_agg_diff_no_model(self):
         """Checking the port value difference of two records"""
         # self.assertFalse(write_flow_agg_diff_stats())
         write_flow_agg_diff_stats()
