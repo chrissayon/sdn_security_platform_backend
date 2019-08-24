@@ -4,6 +4,7 @@ from rest_framework import status
 import requests
 
 from .models import DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats
+from .models import FlowAggregateDiffStats, PortDiffStats
 
 def get_switch_number():
     '''Check the amount of switches in the network'''
@@ -211,6 +212,30 @@ def write_flow_stats(response_data):
 
         return True
 
+def write_flow_agg_diff_stats():
+    '''Write flow statistics to database'''
+    flow_agg_stats = FlowAggregateStats.objects.all()
+    length_port = len(flow_agg_stats)
+
+    # Check if there are at least two entries
+    if(length_port <= 1):
+        return False
+
+    # Obtain last and second last entry    
+    latest_flow_agg_stats = flow_agg_stats[length_port - 1]
+    penultimate_flow_agg_stats = flow_agg_stats[length_port - 2]
+
+    flow_agg_stats_diff_instance = FlowAggregateDiffStats.objects.create(
+        dpid         = latest_flow_agg_stats.dpid,
+        packet_count = latest_flow_agg_stats.packet_count - penultimate_flow_agg_stats.packet_count,
+        byte_count   = latest_flow_agg_stats.byte_count   - penultimate_flow_agg_stats.byte_count,
+        flow_count   = latest_flow_agg_stats.flow_count   - penultimate_flow_agg_stats.flow_count,
+    )
+    flow_agg_stats_diff_instance.save()
+
+    return True
+
+
 
 @task(name='summary')
 def sdn_data_retreieval():
@@ -225,3 +250,6 @@ def sdn_data_retreieval():
 
     port_stats = get_port_stats()
     port_stats_result = write_port_stats(port_stats)
+
+    flow_agg_diff_stats = write_flow_agg_diff_stats()
+

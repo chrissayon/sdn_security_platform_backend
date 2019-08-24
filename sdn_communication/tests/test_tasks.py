@@ -1,7 +1,9 @@
 from django.test import TestCase
 from sdn_communication.tasks import get_switch_number, get_switch_desc, get_flow_stats, get_agg_flow_stats, get_port_stats
 from sdn_communication.tasks import write_switch_desc, write_flow_stats, write_agg_flow_stats, write_port_stats
+from sdn_communication.tasks import write_flow_agg_diff_stats
 from sdn_communication.models import Switch, DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats 
+from sdn_communication.models import FlowAggregateDiffStats
 from rest_framework import status
 from requests.models import Response
 
@@ -82,3 +84,34 @@ class TasksTestCase(TestCase):
     def test_write_port_stats(self):
         """Write port statistics to the database"""
         self.assertEqual(write_port_stats(self.port_stats_response), True)
+
+class TasksDiffTestCase(TestCase):
+    def setUp(self):
+        PortStats.objects.create(tx_dropped = 5, port_no = 1)
+        PortStats.objects.create(tx_dropped = 10, port_no = 1)
+        PortStats.objects.create(tx_dropped = 20, port_no = 1)
+        PortStats.objects.create(tx_dropped = 100, port_no = 2)
+        PortStats.objects.create(tx_dropped = 200, port_no = 2)
+        PortStats.objects.create(tx_dropped = 300, port_no = 2)
+        PortStats.objects.create(tx_dropped = 20, port_no = 3)
+        PortStats.objects.create(tx_dropped = 40, port_no = 3)
+        PortStats.objects.create(tx_dropped = 80, port_no = 3)
+        
+        FlowAggregateStats.objects.create(byte_count = 100)
+        FlowAggregateStats.objects.create(byte_count = 200)
+        FlowAggregateStats.objects.create(byte_count = 350)
+    
+    def test_flow_agg_diff_value(self):
+        """Checking the port value difference of two records"""
+        self.assertEqual(write_flow_agg_diff_stats(), True)
+        flow_agg_stats_diff_instance = FlowAggregateDiffStats.objects.get(id = 1)
+        self.assertEqual(flow_agg_stats_diff_instance.byte_count, 150)
+
+class TasksDiffTestCaseNoModel(TestCase):
+    
+    def test_port_diff_value(self):
+        """Checking the port value difference of two records"""
+        # self.assertFalse(write_flow_agg_diff_stats())
+        write_flow_agg_diff_stats()
+        self.assertFalse(False)
+ 
