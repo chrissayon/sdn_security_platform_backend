@@ -142,6 +142,8 @@ def write_port_stats(response_data):
                 tx_packets    = json_data[i]["tx_packets"],
             )
 
+            print(json_data[i]["port_no"])
+
         return True
 
 
