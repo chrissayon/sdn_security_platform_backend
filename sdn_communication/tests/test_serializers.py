@@ -1,6 +1,8 @@
 from django.test import TestCase
-from ..serializers import DescStatsSerializer, FlowStatsSerializer,FlowAggregateStatsSerializer, PortStatsSerializer
+from ..serializers import DescStatsSerializer, FlowStatsSerializer, FlowAggregateStatsSerializer, PortStatsSerializer
+from ..serializers import FlowAggregateDiffStatsDSerializer, PortDiffStatsSerializer
 from ..models import DescStats, FlowStats, FlowAggregateStats, PortStats
+from ..models import FlowAggregateDiffStats, PortDiffStats
 
 class TestSerializers(TestCase):
     def setUp(self):
@@ -8,6 +10,8 @@ class TestSerializers(TestCase):
         FlowStats.objects.create(hard_timeout = 50)
         FlowAggregateStats.objects.create(byte_count = 100)
         PortStats.objects.create(tx_dropped = 200)
+        FlowAggregateDiffStats.objects.create(byte_count = 1000)
+        PortDiffStats.objects.create(tx_dropped = 400)
     
     def test_desk_stats_serializer(self):
         """Test desciption serializer"""
@@ -32,3 +36,15 @@ class TestSerializers(TestCase):
         port_stats = PortStats.objects.get(id = 1)
         serializer = PortStatsSerializer(port_stats)
         self.assertEqual(serializer.data['tx_dropped'], 200)
+
+    def test_flow_aggregate_diff_stats_serializer(self):
+        """Test flow aggregate statics serializer"""
+        flow_aggregate_diff_stats = FlowAggregateDiffStats.objects.get(id = 1)
+        serializer = FlowAggregateStatsSerializer(flow_aggregate_diff_stats)
+        self.assertEqual(serializer.data['byte_count'], 1000)
+    
+    def test_port_diff_stats_serializer(self):
+        """Test port statistics serializer"""
+        port_diff_stats = PortDiffStats.objects.get(id = 1)
+        serializer = PortStatsSerializer(port_diff_stats)
+        self.assertEqual(serializer.data['tx_dropped'], 400)
