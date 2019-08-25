@@ -327,4 +327,7 @@ def sdn_data_retreieval():
     
     # Port stat difference
     write_port_diff_stats(1)
+    write_port_diff_stats(2)
+    write_port_diff_stats(3)
+    write_port_diff_stats('LOCAL')
 
