@@ -57,7 +57,7 @@ class PortStats(models.Model):
     '''Statistics on the respective port'''
     dpid          = models.IntegerField(default = -1)
     tx_dropped    = models.IntegerField(default = -1)
-    port_number   = models.IntegerField(default = -1)
+    # port_number   = models.IntegerField(default = -1)
     rx_packets    = models.IntegerField(default = -1)
     rx_crc_err    = models.IntegerField(default = -1)
     tx_bytes      = models.IntegerField(default = -1)
