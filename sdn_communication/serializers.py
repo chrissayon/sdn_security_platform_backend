@@ -26,7 +26,7 @@ class PortStatsSerializer(serializers.ModelSerializer):
         model = PortStats
         fields = '__all__'
 
-class FlowAggregateDiffStatsDSerializer(serializers.ModelSerializer):
+class FlowAggregateDiffStatsSerializer(serializers.ModelSerializer):
     '''Serializer for flow statistcs'''
     class Meta:
         model = FlowAggregateDiffStats

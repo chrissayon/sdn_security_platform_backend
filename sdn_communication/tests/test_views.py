@@ -2,6 +2,8 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APITestCase
 from ..models import DescStats, FlowStats, FlowAggregateStats, PortStats
+from ..models import FlowAggregateDiffStats, PortDiffStats
+from sdn_communication.tasks import write_flow_agg_diff_stats, write_port_diff_stats
 from django.urls import reverse
 
 class TestViews(APITestCase):
@@ -48,14 +50,90 @@ class TestViews(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(json_response[0]['tx_dropped'], 200)
     
-    def test_flow_aggregate_diff_view(self):
+    # def test_flow_aggregate_diff_view(self):
+    #     url = reverse('flow_agg_diff_api')
+    #     response = self.client.get(url, format='json')
+    #     json_response = response.json()
+    #     self.assertEqual(1, 1)
+
+    # def test_port_diff_view(self):
+    #     url = reverse('port_diff_api')
+    #     response = self.client.get(url, format='json')
+    #     json_response = response.json()
+    #     self.assertEqual(json_response['tx_dropped'], 10)
+
+class TestDiffViews(APITestCase):
+    def setUp(self):
+        PortStats.objects.create(tx_dropped = 200, port_no = 2)
+        PortStats.objects.create(tx_dropped = 400, port_no = 2)
+        write_port_diff_stats(2)
+        PortStats.objects.create(tx_dropped = 500, port_no = 2)
+        PortStats.objects.create(tx_dropped = 4100, port_no = 2)
+        write_port_diff_stats(2)
+        PortStats.objects.create(tx_dropped = 5100, port_no = 2)
+        PortStats.objects.create(tx_dropped = 6100, port_no = 2)
+        write_port_diff_stats(2)
+        PortStats.objects.create(tx_dropped = 7000, port_no = 2)
+        PortStats.objects.create(tx_dropped = 7000, port_no = 2)
+        write_port_diff_stats(2)
+        PortStats.objects.create(tx_dropped = 8000, port_no = 2)
+        PortStats.objects.create(tx_dropped = 8500, port_no = 2)
+        write_port_diff_stats(2)
+        
+        PortStats.objects.create(tx_dropped = 200, port_no = 3)
+        PortStats.objects.create(tx_dropped = 400, port_no = 3)
+        write_port_diff_stats(3)
+        PortStats.objects.create(tx_dropped = 500, port_no = 3)
+        write_port_diff_stats(3)
+        PortStats.objects.create(tx_dropped = 4100, port_no = 3)
+        write_port_diff_stats(3)
+        PortStats.objects.create(tx_dropped = 5100, port_no = 3)
+        write_port_diff_stats(3)
+        PortStats.objects.create(tx_dropped = 6100, port_no = 3)
+        write_port_diff_stats(3)
+        PortStats.objects.create(tx_dropped = 7000, port_no = 3)
+        write_port_diff_stats(3)
+        PortStats.objects.create(tx_dropped = 7000, port_no = 3)
+        write_port_diff_stats(3)
+        PortStats.objects.create(tx_dropped = 8000, port_no = 3)
+        write_port_diff_stats(3)
+        PortStats.objects.create(tx_dropped = 8500, port_no = 3)
+        write_port_diff_stats(3)
+
+        FlowAggregateStats.objects.create(byte_count = 1)
+        FlowAggregateStats.objects.create(byte_count = 5)
+        write_flow_agg_diff_stats()
+        FlowAggregateStats.objects.create(byte_count = 10)
+        write_flow_agg_diff_stats()
+        FlowAggregateStats.objects.create(byte_count = 100)
+        write_flow_agg_diff_stats()
+        FlowAggregateStats.objects.create(byte_count = 300)
+        write_flow_agg_diff_stats()
+        FlowAggregateStats.objects.create(byte_count = 500)
+        write_flow_agg_diff_stats()
+        FlowAggregateStats.objects.create(byte_count = 800)
+        write_flow_agg_diff_stats()
+        FlowAggregateStats.objects.create(byte_count = 1000)
+        write_flow_agg_diff_stats()
+        FlowAggregateStats.objects.create(byte_count = 10010)
+        write_flow_agg_diff_stats()
+        FlowAggregateStats.objects.create(byte_count = 20000)
+        write_flow_agg_diff_stats()
+        FlowAggregateStats.objects.create(byte_count = 30000)
+        write_flow_agg_diff_stats()
+
+
+    def test_flow_aggregate_diff_stats_view(self):
         url = reverse('flow_agg_diff_api')
         response = self.client.get(url, format='json')
         json_response = response.json()
-        self.assertEqual(1, 1)
-
-    def test_port_diff_view(self):
+        # print(json_response)
+        self.assertEqual(json_response[0]['byte_count'], 200)
+    
+    def test_port_diff_stats_view(self):
         url = reverse('port_diff_api')
         response = self.client.get(url, format='json')
         json_response = response.json()
-        self.assertEqual(json_response['tx_dropped'], 10)
+        # print(json_response)
+        self.assertEqual(json_response[0]['tx_dropped'], 3600)
+        

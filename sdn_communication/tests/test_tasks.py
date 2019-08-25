@@ -121,7 +121,7 @@ class TasksDiffTestCaseNoModel(TestCase):
     
     def test_flow_agg_diff_no_model(self):
         """Checking the port value difference of two records"""
-        # self.assertFalse(write_flow_agg_diff_stats())
+        self.assertFalse(write_flow_agg_diff_stats())
         write_flow_agg_diff_stats()
         self.assertFalse(False)
  

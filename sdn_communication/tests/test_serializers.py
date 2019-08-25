@@ -1,6 +1,6 @@
 from django.test import TestCase
 from ..serializers import DescStatsSerializer, FlowStatsSerializer, FlowAggregateStatsSerializer, PortStatsSerializer
-from ..serializers import FlowAggregateDiffStatsDSerializer, PortDiffStatsSerializer
+from ..serializers import FlowAggregateDiffStatsSerializer, PortDiffStatsSerializer
 from ..models import DescStats, FlowStats, FlowAggregateStats, PortStats
 from ..models import FlowAggregateDiffStats, PortDiffStats
 
