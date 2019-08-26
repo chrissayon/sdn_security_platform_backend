@@ -39,7 +39,8 @@ class PortStatsView(APIView):
 
     def get(self, request):
         '''Obtain all port statistics from database'''
-        port_stats = PortStats.objects.all()
+        port_stats = PortStats.objects.order_by('-id')[:100]
+        port_stats_reversed = reversed(port_stats)
         serializer = PortStatsSerializer(port_stats, many=True)
         #print(serializer.data)
         return Response(serializer.data)
