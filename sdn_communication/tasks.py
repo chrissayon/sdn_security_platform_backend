@@ -255,10 +255,20 @@ def write_flow_agg_diff_stats():
     latest_flow_agg_stats = flow_agg_stats[length_flow_agg - 1]
     penultimate_flow_agg_stats = flow_agg_stats[length_flow_agg - 2]
 
+    diff_packet_count = latest_flow_agg_stats.packet_count - penultimate_flow_agg_stats.packet_count
+    diff_byte_count   = latest_flow_agg_stats.byte_count - penultimate_flow_agg_stats.byte_count
+    diff_flow_count   = latest_flow_agg_stats.flow_count - penultimate_flow_agg_stats.flow_count
+    
+    # If negative entry
+    if(diff_packet_count < 0):
+        return False
+    elif((diff_byte_count < 0) | (diff_byte_count > 1000000000000)):
+        return False
+
     flow_agg_stats_diff_instance = FlowAggregateDiffStats.objects.create(
-        packet_count     = latest_flow_agg_stats.packet_count - penultimate_flow_agg_stats.packet_count,
-        byte_count       = latest_flow_agg_stats.byte_count - penultimate_flow_agg_stats.byte_count,
-        flow_count       = latest_flow_agg_stats.flow_count - penultimate_flow_agg_stats.flow_count,
+        packet_count     = diff_packet_count,
+        byte_count       = diff_byte_count,
+        flow_count       = diff_flow_count,
         latest_flow_fk   = latest_flow_agg_stats,
         penultimate_flow_fk = penultimate_flow_agg_stats,
     )

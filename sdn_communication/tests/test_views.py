@@ -48,7 +48,7 @@ class TestViews(APITestCase):
         response = self.client.get(url, format='json')
         json_response = response.json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(json_response[0]['tx_dropped'], 200)
+        self.assertEqual(json_response[0]['tx_dropped'], 60)
     
     # def test_flow_aggregate_diff_view(self):
     #     url = reverse('flow_agg_diff_api')
