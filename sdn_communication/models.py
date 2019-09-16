@@ -108,8 +108,10 @@ class FlowAggregateDiffStats(models.Model):
     flow_count          = models.IntegerField(default = -1)
     latest_flow_fk      = models.ForeignKey(FlowAggregateStats, on_delete=models.CASCADE, related_name='latest_flow', default = 1)
     penultimate_flow_fk = models.ForeignKey(FlowAggregateStats, on_delete=models.CASCADE, related_name='penultimate_flow', default = 1)
+    time_difference     = models.FloatField(default = -1)
+    api_retry           = models.IntegerField(default = -1)
     created             = models.DateTimeField(auto_now_add = True)
     last_modified       = models.DateTimeField(auto_now = True)
 
 class Switch(models.Model):
-    switch_number = models.IntegerField(default=0)
+    switch_number = models.IntegerField(default=-1)
