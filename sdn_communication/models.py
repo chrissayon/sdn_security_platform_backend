@@ -96,9 +96,10 @@ class PortDiffStats(models.Model):
     tx_packets          = models.IntegerField(default = -1)
     latest_port_fk      = models.ForeignKey(PortStats, on_delete=models.CASCADE, related_name='latest_port', default = 1)
     penultimate_port_fk = models.ForeignKey(PortStats, on_delete=models.CASCADE, related_name='penultimate_port', default = 1)
+    time_interval       = models.FloatField(default = -1)
+    api_retry           = models.IntegerField(default = -1)
     created             = models.DateTimeField(auto_now_add = True)
     last_modified       = models.DateTimeField(auto_now = True)
-
 
 class FlowAggregateDiffStats(models.Model):
     '''Total amount of packets sent'''
@@ -108,8 +109,15 @@ class FlowAggregateDiffStats(models.Model):
     flow_count          = models.IntegerField(default = -1)
     latest_flow_fk      = models.ForeignKey(FlowAggregateStats, on_delete=models.CASCADE, related_name='latest_flow', default = 1)
     penultimate_flow_fk = models.ForeignKey(FlowAggregateStats, on_delete=models.CASCADE, related_name='penultimate_flow', default = 1)
-    time_difference     = models.FloatField(default = -1)
+    time_interval       = models.FloatField(default = -1)
     api_retry           = models.IntegerField(default = -1)
+    created             = models.DateTimeField(auto_now_add = True)
+    last_modified       = models.DateTimeField(auto_now = True)
+
+class AttackNotification(models.Model):
+    '''Attack notification'''
+    attack_type         = models.CharField(default = "No Data Yet", max_length = 50)
+    attack_vector       = models.CharField(default = "No Data Yet", max_length = 50)
     created             = models.DateTimeField(auto_now_add = True)
     last_modified       = models.DateTimeField(auto_now = True)
 

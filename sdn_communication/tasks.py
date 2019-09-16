@@ -273,9 +273,13 @@ def write_flow_agg_diff_stats():
         packet_count     = diff_packet_count,
         byte_count       = diff_byte_count,
         flow_count       = diff_flow_count,
+        time_interval    = latest_flow_agg_stats.created.timestamp() - penultimate_flow_agg_stats.created.timestamp(),
+        api_retry        = -1,
         latest_flow_fk   = latest_flow_agg_stats,
         penultimate_flow_fk = penultimate_flow_agg_stats,
     )
+    print(length_flow_agg)
+    print(flow_agg_stats[length_flow_agg - 1])
     flow_agg_stats_diff_instance.save()
 
     return True
@@ -293,7 +297,6 @@ def write_port_diff_stats(port):
     # Obtain last and second last entry    
     latest_port_stats = port_stats[length_port - 1]
     penultimate_port_stats = port_stats[length_port - 2]
-    
     port_stats_instance = PortDiffStats.objects.create(
         tx_dropped    = latest_port_stats.tx_dropped    - penultimate_port_stats.tx_dropped,
         rx_packets    = latest_port_stats.rx_packets    - penultimate_port_stats.rx_packets,
@@ -322,7 +325,7 @@ def ml_flow_agg_diff_stats():
     model = tf.keras.models.load_model('my_model.h5')
     flow_agg_diff_stats = FlowAggregateDiffStats.objects.last()
     # print(flow_agg_diff_stats.packet_count)
-    time.sleep(5)
+    # time.sleep(5)
     network_data = np.array([[
         flow_agg_diff_stats.packet_count,
         flow_agg_diff_stats.byte_count,
@@ -330,7 +333,7 @@ def ml_flow_agg_diff_stats():
         0
     ]])
     result = model.predict(network_data)
-    print(datetime.datetime.now().timestamp() - flow_agg_diff_stats.created.timestamp())
+    # print(datetime.datetime.now().timestamp() - flow_agg_diff_stats.created.timestamp())
     # print("\n")
     # print(result)
     return True
