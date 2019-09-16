@@ -2,6 +2,8 @@ from celery import task
 from celery import shared_task
 from rest_framework import status
 import requests
+import tensorflow as tf
+import numpy as np
 
 from .models import DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats
 from .models import FlowAggregateDiffStats, PortDiffStats
@@ -314,6 +316,21 @@ def write_port_diff_stats(port):
 
     return True
 
+def ml_flow_agg_diff_stats():
+    model = tf.keras.models.load_model('my_model.h5')
+    flow_agg_diff_stats = FlowAggregateDiffStats.objects.last()
+    # print(flow_agg_diff_stats.packet_count)
+    network_data = np.array([[
+        flow_agg_diff_stats.packet_count,
+        flow_agg_diff_stats.byte_count,
+        10,
+        0
+    ]])
+    result = model.predict(network_data)
+    print("\n")
+    print(result)
+    return True
+
 @task(name='summary')
 def sdn_data_retreieval():
     # Hardware description
@@ -340,4 +357,6 @@ def sdn_data_retreieval():
     write_port_diff_stats(2)
     write_port_diff_stats(3)
     write_port_diff_stats('LOCAL')
+
+    # Run port data through classifier
 

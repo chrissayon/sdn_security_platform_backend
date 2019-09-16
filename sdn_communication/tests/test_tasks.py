@@ -2,6 +2,7 @@ from django.test import TestCase
 from sdn_communication.tasks import get_switch_number, get_switch_desc, get_flow_stats, get_agg_flow_stats, get_port_stats
 from sdn_communication.tasks import write_switch_desc, write_flow_stats, write_agg_flow_stats, write_port_stats
 from sdn_communication.tasks import write_flow_agg_diff_stats, write_port_diff_stats
+from sdn_communication.tasks import ml_flow_agg_diff_stats
 from sdn_communication.models import Switch, DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats 
 from sdn_communication.models import FlowAggregateDiffStats, PortDiffStats
 from rest_framework import status
@@ -115,8 +116,6 @@ class TasksDiffTestCase(TestCase):
         # print(flow_agg_stats_diff_instance.penultimate_flow_fk.id)
         self.assertEqual(port_stats_diff_instance.tx_dropped, 10)
 
-
-
 class TasksDiffTestCaseNoModel(TestCase):
     
     def test_flow_agg_diff_no_model(self):
@@ -125,3 +124,18 @@ class TasksDiffTestCaseNoModel(TestCase):
         write_flow_agg_diff_stats()
         self.assertFalse(False)
  
+class TasksMachineLearning(TestCase):
+    def setUp(self):
+        FlowAggregateDiffStats.objects.create(
+            packet_count = 0,
+            byte_count = 0,
+            flow_count = 3,
+            latest_flow_fk = FlowAggregateStats.objects.create(),
+            penultimate_flow_fk = FlowAggregateStats.objects.create()
+            # time = 10,
+            # api_retry = 0
+        )
+
+
+    def test_machine_learning_agg_stats(self):
+        self.assertTrue(ml_flow_agg_diff_stats())
