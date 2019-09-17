@@ -116,10 +116,13 @@ class FlowAggregateDiffStats(models.Model):
 
 class AttackNotification(models.Model):
     '''Attack notification'''
-    attack_type         = models.CharField(default = "No Data Yet", max_length = 50)
-    attack_vector       = models.CharField(default = "No Data Yet", max_length = 50)
-    created             = models.DateTimeField(auto_now_add = True)
-    last_modified       = models.DateTimeField(auto_now = True)
+    attack_type   = models.CharField(default = "No Data Yet", max_length = 50) #DDoS, controller comprmise, etc
+    attack_vector = models.CharField(default = "No Data Yet", max_length = 50) #Where the attack came from (flow_aggregate, port statistics)
+    percentage    = models.FloatField(default = -1) # Percentage of the value from the machine learning model
+    threshold     = models.FloatField(default = -1) # Threshold for value to be considered valid
+    attack_true   = models.BooleanField(default = 0) # Attack is valid when percentage > threshold
+    created       = models.DateTimeField(auto_now_add = True)
+    last_modified = models.DateTimeField(auto_now = True)
 
 class Switch(models.Model):
     switch_number = models.IntegerField(default=-1)

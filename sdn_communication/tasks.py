@@ -45,6 +45,10 @@ def write_switch_desc(response_data):
         return False
     else:
         json_data_full = response_data.json()
+        # print(len(json_data_full))
+        # if len(json_data_full) != 0:
+        #     return False
+
         json_keys = json_data_full.keys()
         dict_keys = list(json_keys)
         json_data = json_data_full[dict_keys[0]]
@@ -146,7 +150,7 @@ def write_port_stats(response_data):
                 tx_packets    = json_data[i]["tx_packets"],
             )
 
-            print(json_data[i]["port_no"])
+            # print(json_data[i]["port_no"])
 
         return True
 
@@ -278,8 +282,8 @@ def write_flow_agg_diff_stats():
         latest_flow_fk   = latest_flow_agg_stats,
         penultimate_flow_fk = penultimate_flow_agg_stats,
     )
-    print(length_flow_agg)
-    print(flow_agg_stats[length_flow_agg - 1])
+    #print(length_flow_agg)
+    # print(flow_agg_stats[length_flow_agg - 1])
     flow_agg_stats_diff_instance.save()
 
     return True
