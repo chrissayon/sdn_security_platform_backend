@@ -37,3 +37,4 @@ class PortDiffStatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PortDiffStats
         fields = '__all__'
+
