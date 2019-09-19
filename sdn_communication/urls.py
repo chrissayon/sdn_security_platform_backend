@@ -8,4 +8,5 @@ urlpatterns = [
     path('port_stats/', views.PortStatsView.as_view(), name='port_api'),
     path('flow_agg_diff/', views.FlowAggregateDiffStatsView.as_view(), name='flow_agg_diff_api'),
     path('port_diff/', views.PortDiffStatsView.as_view(), name='port_diff_api'),
+    path('attack_notification/', views.AttackNotificationView.as_view(), name='attack_notification_api'),
 ]

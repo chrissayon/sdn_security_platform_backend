@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from ..models import DescStats, FlowStats, FlowAggregateStats, PortStats
 from ..models import FlowAggregateDiffStats, PortDiffStats
+from ..models import AttackNotification
 from sdn_communication.tasks import write_flow_agg_diff_stats, write_port_diff_stats
 from django.urls import reverse
 
@@ -136,4 +137,15 @@ class TestDiffViews(APITestCase):
         json_response = response.json()
         # print(json_response)
         self.assertEqual(json_response[0]['tx_dropped'], 3600)
+
+class AttackNotificationView(APITestCase):
+    def setUp(self):
+        AttackNotification.objects.create(percentage=0.3)
+
+    def test_attack_notification_view(self):
+        url = reverse('attack_notification_api')
+        response = self.client.get(url, format='json')
+        json_response = response.json()
+        # print(json_response)
+        self.assertEqual(json_response[0]['percentage'], 0.3)
         

@@ -4,8 +4,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import DescStats, FlowStats, FlowAggregateStats, PortStats
 from .models import FlowAggregateDiffStats, PortDiffStats
+from .models import AttackNotification
 from .serializers import DescStatsSerializer, FlowStatsSerializer,FlowAggregateStatsSerializer, PortStatsSerializer
 from .serializers import FlowAggregateDiffStatsSerializer, PortDiffStatsSerializer
+from .serializers import AttackNotificationSerializer
 
 # List switch hardware description
 class DescStatsView(APIView):
@@ -63,4 +65,12 @@ class PortDiffStatsView(APIView):
         port_diff_stats = PortDiffStats.objects.filter(port_no = 3).order_by('-id')[:7]
         port_diff_stats_reversed = reversed(port_diff_stats)
         serializer = PortDiffStatsSerializer(port_diff_stats_reversed, many=True)
+        return Response(serializer.data)
+
+class AttackNotificationView(APIView):
+    
+    def get(self,request):
+        attack_notification = AttackNotification.objects.order_by('-id')[:7]
+        attack_notification_reversed = reversed(attack_notification)
+        serializer = AttackNotificationSerializer(attack_notification_reversed, many=True)
         return Response(serializer.data)
