@@ -138,4 +138,4 @@ class TasksMachineLearning(TestCase):
 
 
     def test_machine_learning_agg_stats(self):
-        self.assertTrue(ml_flow_agg_diff_stats())
+        self.assertTrue(ml_flow_agg_diff_stats(0.1))

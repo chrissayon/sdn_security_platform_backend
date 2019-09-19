@@ -1,8 +1,10 @@
 from django.test import TestCase
 from ..serializers import DescStatsSerializer, FlowStatsSerializer, FlowAggregateStatsSerializer, PortStatsSerializer
 from ..serializers import FlowAggregateDiffStatsSerializer, PortDiffStatsSerializer
+from ..serializers import AttackNotificationSerializer
 from ..models import DescStats, FlowStats, FlowAggregateStats, PortStats
 from ..models import FlowAggregateDiffStats, PortDiffStats
+from ..models import AttackNotification
 
 class TestSerializers(TestCase):
     def setUp(self):
@@ -12,6 +14,7 @@ class TestSerializers(TestCase):
         PortStats.objects.create(tx_dropped = 200)
         FlowAggregateDiffStats.objects.create(byte_count = 1000)
         PortDiffStats.objects.create(tx_dropped = 400)
+        AttackNotification.objects.create(percentage = 0.06)
     
     def test_desk_stats_serializer(self):
         """Test desciption serializer"""
@@ -48,3 +51,8 @@ class TestSerializers(TestCase):
         port_diff_stats = PortDiffStats.objects.get(id = 1)
         serializer = PortStatsSerializer(port_diff_stats)
         self.assertEqual(serializer.data['tx_dropped'], 400)
+
+    def attack_notification_serializer(self):
+        attack_notification = AttackNotification.objects.get(id = 1)
+        serializer = AttackNotificationSerializer
+        self.assertEqual(serializer.data['percentage'], 0.06)

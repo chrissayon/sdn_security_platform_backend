@@ -8,7 +8,7 @@ import time
 import datetime
 
 from .models import DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats
-from .models import FlowAggregateDiffStats, PortDiffStats
+from .models import FlowAggregateDiffStats, PortDiffStats, AttackNotification
 
 def get_switch_number():
     '''Check the amount of switches in the network'''
@@ -325,7 +325,7 @@ def write_port_diff_stats(port):
 
     return True
 
-def ml_flow_agg_diff_stats():
+def ml_flow_agg_diff_stats(threshold):
     model = tf.keras.models.load_model('my_model.h5')
     flow_agg_diff_stats = FlowAggregateDiffStats.objects.last()
     # print(flow_agg_diff_stats.packet_count)
@@ -337,8 +337,26 @@ def ml_flow_agg_diff_stats():
         0
     ]])
     result = model.predict(network_data)
+    print(result[0][0])
+
+    attack_true = (result[0][0] > threshold)
+    
+    if (attack_true):
+        attack_notification = AttackNotification.objects.create(
+            attack_type   = "Denial of Service", #DDoS, controller comprmise, etc
+            attack_vector = "Flow Aggregate", #Where the attack came from (flow_aggregate, port statistics)
+            percentage    = result[0][0], # Percentage of the value from the machine learning model
+            threshold     = threshold, # Threshold for value to be considered valid
+            attack_true   = attack_true # Attack is valid when percentage > threshold
+        )
+
+    # print(attack_notification.attack_type)
+    # print(attack_notification.attack_vector)
+    # print(attack_notification.percentage)
+    # print(attack_notification.threshold)
+    # print(attack_notification.attack_true)
     # print(datetime.datetime.now().timestamp() - flow_agg_diff_stats.created.timestamp())
-    # print("\n")
+    # # print("\n")
     # print(result)
     return True
 
@@ -371,4 +389,5 @@ def sdn_data_retreieval():
     write_port_diff_stats('LOCAL')
 
     # Run port data through classifier
+    ml_flow_agg_diff_stats(0.7)
 
