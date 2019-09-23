@@ -4,10 +4,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import DescStats, FlowStats, FlowAggregateStats, PortStats
 from .models import FlowAggregateDiffStats, PortDiffStats
-from .models import AttackNotification
+from .models import AttackNotification, ConfigurationModel
 from .serializers import DescStatsSerializer, FlowStatsSerializer,FlowAggregateStatsSerializer, PortStatsSerializer
 from .serializers import FlowAggregateDiffStatsSerializer, PortDiffStatsSerializer
 from .serializers import AttackNotificationSerializer
+
+import json 
 
 # List switch hardware description
 class DescStatsView(APIView):
@@ -74,3 +76,20 @@ class AttackNotificationView(APIView):
         attack_notification_reversed = reversed(attack_notification)
         serializer = AttackNotificationSerializer(attack_notification_reversed, many=True)
         return Response(serializer.data)
+
+class UpdateControllerIPView(APIView):
+    def post(self,request):
+        # print(request.body.decode('utf-8'))
+        data = json.loads(request.body.decode('utf-8'))
+        # print(data["controllerIP"])
+        try:
+            configuration_instance = ConfigurationModel.objects.get(id = 1)
+            configuration_instance.controllerIP = data["controllerIP"]
+            configuration_instance.save()
+            return Response(status=status.HTTP_200_OK)
+        except ConfigurationModel.DoesNotExist:
+            # If entry doesn't exists, create a new one
+            configuration_instance = ConfigurationModel.objects.create(
+                 controllerIP = data["controllerIP"],
+            )
+            return Response(status=status.HTTP_201_CREATED)

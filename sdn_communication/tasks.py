@@ -228,7 +228,7 @@ def write_flow_stats(response_data):
                 flow_stats_instance.table_id      = json_data[i]["table_id"]
                 flow_stats_instance.match         = json_data[i]["match"]
                 flow_stats_instance.save()
-                print(flow_stats_instance.last_modified)
+                # print(flow_stats_instance.last_modified)
             except FlowStats.DoesNotExist:
                 # If entry doesn't exists, create a new one
                 flow_stats_instance = FlowStats.objects.create(
@@ -333,14 +333,15 @@ def ml_flow_agg_diff_stats(threshold):
     network_data = np.array([[
         flow_agg_diff_stats.packet_count,
         flow_agg_diff_stats.byte_count,
-        10,
+        flow_agg_diff_stats.time_interval,
         0
     ]])
     result = model.predict(network_data)
-    print(result[0][0])
+    # print(result[0][0])
 
     attack_true = (result[0][0] > threshold)
-    
+    # print(attack_true)
+
     if (attack_true):
         attack_notification = AttackNotification.objects.create(
             attack_type   = "Denial of Service", #DDoS, controller comprmise, etc
@@ -356,6 +357,7 @@ def ml_flow_agg_diff_stats(threshold):
     # print(attack_notification.threshold)
     # print(attack_notification.attack_true)
     # print(datetime.datetime.now().timestamp() - flow_agg_diff_stats.created.timestamp())
+    # print(flow_agg_diff_stats.time_interval)
     # # print("\n")
     # print(result)
     return True
@@ -363,31 +365,35 @@ def ml_flow_agg_diff_stats(threshold):
 
 @task(name='summary')
 def sdn_data_retreieval():
-    # Hardware description
-    switch_desc = get_switch_desc()
-    switch_desc_result = write_switch_desc(switch_desc)
+    # # Hardware description
+    # switch_desc = get_switch_desc()
+    # switch_desc_result = write_switch_desc(switch_desc)
 
-    # FLow stats
-    flow_stats = get_flow_stats()
-    flow_stats_result = write_flow_stats(flow_stats)
+    # # FLow stats
+    # flow_stats = get_flow_stats()
+    # flow_stats_result = write_flow_stats(flow_stats)
 
-    # Flow Aggregate stats
-    agg_flow_stats = get_agg_flow_stats()
-    agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
+    # # Flow Aggregate stats
+    # agg_flow_stats = get_agg_flow_stats()
+    # agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
 
-    # Port Stats
-    port_stats = get_port_stats()
-    port_stats_result = write_port_stats(port_stats)
+    # # Port Stats
+    # port_stats = get_port_stats()
+    # port_stats_result = write_port_stats(port_stats)
 
-    # Flow Aggregate Stats difference
+    # # Flow Aggregate Stats difference
     flow_agg_diff_stats = write_flow_agg_diff_stats()
     
-    # Port stat difference
-    write_port_diff_stats(1)
-    write_port_diff_stats(2)
-    write_port_diff_stats(3)
-    write_port_diff_stats('LOCAL')
+    # # Port stat difference
+    # write_port_diff_stats(1)
+    # write_port_diff_stats(2)
+    # write_port_diff_stats(3)
+    # write_port_diff_stats('LOCAL')
 
-    # Run port data through classifier
-    ml_flow_agg_diff_stats(0.7)
+    # # Run port data through classifier
+    ml_flow_agg_diff_stats(0)
+    # t0 = time.time()
+    time.sleep(5)
+    # t1 = time.time()
+
 

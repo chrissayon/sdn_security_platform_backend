@@ -124,5 +124,8 @@ class AttackNotification(models.Model):
     created       = models.DateTimeField(auto_now_add = True)
     last_modified = models.DateTimeField(auto_now = True)
 
+class ConfigurationModel(models.Model):
+    controllerIP = models.CharField(default = "0.0.0.0", max_length = 50)
+
 class Switch(models.Model):
     switch_number = models.IntegerField(default=-1)

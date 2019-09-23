@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from ..models import DescStats, FlowStats, FlowAggregateStats, PortStats
 from ..models import FlowAggregateDiffStats, PortDiffStats
-from ..models import AttackNotification
+from ..models import AttackNotification, ConfigurationModel
 from sdn_communication.tasks import write_flow_agg_diff_stats, write_port_diff_stats
 from django.urls import reverse
 
@@ -125,6 +125,7 @@ class TestDiffViews(APITestCase):
 
 
     def test_flow_aggregate_diff_stats_view(self):
+        '''Testing view for different flow aggregate stats'''
         url = reverse('flow_agg_diff_api')
         response = self.client.get(url, format='json')
         json_response = response.json()
@@ -132,6 +133,7 @@ class TestDiffViews(APITestCase):
         self.assertEqual(json_response[0]['byte_count'], 200)
     
     def test_port_diff_stats_view(self):
+        '''Testing view with for different port stats'''
         url = reverse('port_diff_api')
         response = self.client.get(url, format='json')
         json_response = response.json()
@@ -143,9 +145,36 @@ class AttackNotificationView(APITestCase):
         AttackNotification.objects.create(percentage=0.3)
 
     def test_attack_notification_view(self):
+        '''Testing the machine learnign result'''
         url = reverse('attack_notification_api')
         response = self.client.get(url, format='json')
         json_response = response.json()
         # print(json_response)
         self.assertEqual(json_response[0]['percentage'], 0.3)
-        
+
+class ConfigurationNoDataView(APITestCase):
+    def test_configuration_no_IP(self):
+        url = reverse('update_controller_IP_api')
+        response = self.client.post(
+            url, 
+            { 'controllerIP' : "0.0.0.0" }, 
+            format='json'
+        )
+        # print(response)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+class ConfigurationDataView(APITestCase):
+    def setUp(self):
+        configuration_instance = ConfigurationModel.objects.create(
+            controllerIP = "1.1.1.1",
+        )
+
+    def test_configuration_IP(self):
+        url = reverse('update_controller_IP_api')
+        response = self.client.post(
+            url, 
+            { 'controllerIP' : "0.0.0.0" }, 
+            format='json'
+        )
+        # print(response)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
