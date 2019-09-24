@@ -1,10 +1,10 @@
 from django.test import TestCase
 from ..serializers import DescStatsSerializer, FlowStatsSerializer, FlowAggregateStatsSerializer, PortStatsSerializer
 from ..serializers import FlowAggregateDiffStatsSerializer, PortDiffStatsSerializer
-from ..serializers import AttackNotificationSerializer
+from ..serializers import AttackNotificationSerializer, ConfigurationModelSerializer
 from ..models import DescStats, FlowStats, FlowAggregateStats, PortStats
 from ..models import FlowAggregateDiffStats, PortDiffStats
-from ..models import AttackNotification
+from ..models import AttackNotification, ConfigurationModel
 
 class TestSerializers(TestCase):
     def setUp(self):
@@ -15,6 +15,7 @@ class TestSerializers(TestCase):
         FlowAggregateDiffStats.objects.create(byte_count = 1000)
         PortDiffStats.objects.create(tx_dropped = 400)
         AttackNotification.objects.create(percentage = 0.06)
+        ConfigurationModel.objects.create(controllerIP = "0.1.2.3")
     
     def test_desk_stats_serializer(self):
         """Test desciption serializer"""
@@ -52,7 +53,12 @@ class TestSerializers(TestCase):
         serializer = PortStatsSerializer(port_diff_stats)
         self.assertEqual(serializer.data['tx_dropped'], 400)
 
-    def attack_notification_serializer(self):
+    def test_attack_notification_serializer(self):
         attack_notification = AttackNotification.objects.get(id = 1)
-        serializer = AttackNotificationSerializer
+        serializer = AttackNotificationSerializer(attack_notification)
         self.assertEqual(serializer.data['percentage'], 0.06)
+
+    def test_configuration_serializer(self):
+        configuration_model = ConfigurationModel.objects.get(id = 1)
+        serializer = ConfigurationModelSerializer(configuration_model)
+        self.assertEqual(serializer.data['controllerIP'], "0.1.2.3")

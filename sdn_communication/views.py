@@ -7,7 +7,7 @@ from .models import FlowAggregateDiffStats, PortDiffStats
 from .models import AttackNotification, ConfigurationModel
 from .serializers import DescStatsSerializer, FlowStatsSerializer,FlowAggregateStatsSerializer, PortStatsSerializer
 from .serializers import FlowAggregateDiffStatsSerializer, PortDiffStatsSerializer
-from .serializers import AttackNotificationSerializer
+from .serializers import AttackNotificationSerializer, ConfigurationModelSerializer
 
 import json 
 
@@ -78,18 +78,23 @@ class AttackNotificationView(APIView):
         return Response(serializer.data)
 
 class UpdateControllerIPView(APIView):
+    def get(self,request):
+        configuration_instance = ConfigurationModel.objects.get(id = 1)
+        serializer = ConfigurationModelSerializer(configuration_instance)
+        return Response(serializer.data)
+
     def post(self,request):
-        # print(request.body.decode('utf-8'))
+        print(request.body)
         data = json.loads(request.body.decode('utf-8'))
-        # print(data["controllerIP"])
+        print(data['data']['controllerIP'])
         try:
             configuration_instance = ConfigurationModel.objects.get(id = 1)
-            configuration_instance.controllerIP = data["controllerIP"]
+            configuration_instance.controllerIP = data['data']['controllerIP']
             configuration_instance.save()
-            return Response(status=status.HTTP_200_OK)
+            return Response(data=data["data"], status=status.HTTP_200_OK)
         except ConfigurationModel.DoesNotExist:
             # If entry doesn't exists, create a new one
             configuration_instance = ConfigurationModel.objects.create(
-                 controllerIP = data["controllerIP"],
+                 controllerIP = data['data']['controllerIP'], 
             )
-            return Response(status=status.HTTP_201_CREATED)
+            return Response(data=data["data"], status=status.HTTP_201_CREATED)

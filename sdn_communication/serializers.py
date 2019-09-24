@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import DescStats, FlowStats, FlowAggregateStats, PortStats
 from .models import FlowAggregateDiffStats, PortDiffStats
-from .models import AttackNotification
+from .models import AttackNotification, ConfigurationModel
 
 class DescStatsSerializer(serializers.ModelSerializer):
     '''Serializer for hardware description'''
@@ -42,4 +42,9 @@ class PortDiffStatsSerializer(serializers.ModelSerializer):
 class AttackNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = AttackNotification
+        fields = '__all__'
+
+class ConfigurationModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConfigurationModel
         fields = '__all__'

@@ -157,7 +157,7 @@ class ConfigurationNoDataView(APITestCase):
         url = reverse('update_controller_IP_api')
         response = self.client.post(
             url, 
-            { 'controllerIP' : "0.0.0.0" }, 
+            { 'data' : {'controllerIP' : "0.0.0.0"} }, 
             format='json'
         )
         # print(response)
@@ -168,12 +168,22 @@ class ConfigurationDataView(APITestCase):
         configuration_instance = ConfigurationModel.objects.create(
             controllerIP = "1.1.1.1",
         )
+    
+    def test_get_configuration_IP(self):
+        url = reverse('update_controller_IP_api')
+        response = self.client.get(url, format='json')
+        # print(response)
+        json_response = response.json()
+        # print(json_response)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(json_response['controllerIP'], '1.1.1.1')
 
-    def test_configuration_IP(self):
+
+    def test_write_configuration_IP(self):
         url = reverse('update_controller_IP_api')
         response = self.client.post(
             url, 
-            { 'controllerIP' : "0.0.0.0" }, 
+            { 'data' : {'controllerIP' : "0.0.0.0"} }, 
             format='json'
         )
         # print(response)
