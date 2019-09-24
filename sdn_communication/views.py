@@ -98,3 +98,23 @@ class UpdateControllerIPView(APIView):
                  controllerIP = data['data']['controllerIP'], 
             )
             return Response(data=data["data"], status=status.HTTP_201_CREATED)
+
+class UpdateMLView(APIView):
+    def get(self,request):
+        configuration_instance = ConfigurationModel.objects.get(id = 1)
+        serializer = ConfigurationModelSerializer(configuration_instance)
+        return Response(serializer.data)
+
+    def post(self,request):
+        data = json.loads(request.body.decode('utf-8'))
+        try:
+            configuration_instance = ConfigurationModel.objects.get(id = 1)
+            configuration_instance.ml_threshold = data['data']['ml_threshold']
+            configuration_instance.save()
+            return Response(data=data["data"], status=status.HTTP_200_OK)
+        except ConfigurationModel.DoesNotExist:
+            # If entry doesn't exists, create a new one
+            configuration_instance = ConfigurationModel.objects.create(
+                 controllerIP = data['data']['ml_threshold'], 
+            )
+            return Response(data=data["data"], status=status.HTTP_201_CREATED)

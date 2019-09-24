@@ -126,6 +126,7 @@ class AttackNotification(models.Model):
 
 class ConfigurationModel(models.Model):
     controllerIP = models.CharField(default = "0.0.0.0", max_length = 50)
+    ml_threshold = models.FloatField(default = -1)
 
 class Switch(models.Model):
     switch_number = models.IntegerField(default=-1)

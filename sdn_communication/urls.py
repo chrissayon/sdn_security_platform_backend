@@ -10,4 +10,5 @@ urlpatterns = [
     path('port_diff/', views.PortDiffStatsView.as_view(), name='port_diff_api'),
     path('attack_notification/', views.AttackNotificationView.as_view(), name='attack_notification_api'),
     path('update_controller_IP/', views.UpdateControllerIPView.as_view(), name='update_controller_IP_api'),
+    path('update_model_IP/', views.UpdateMLView.as_view(), name='update_ml_api'),
 ]

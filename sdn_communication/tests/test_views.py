@@ -167,6 +167,7 @@ class ConfigurationDataView(APITestCase):
     def setUp(self):
         configuration_instance = ConfigurationModel.objects.create(
             controllerIP = "1.1.1.1",
+            ml_threshold = 0.01
         )
     
     def test_get_configuration_IP(self):
@@ -188,3 +189,24 @@ class ConfigurationDataView(APITestCase):
         )
         # print(response)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_ml(self):
+        url = reverse('update_ml_api')
+        response = self.client.get(url, format='json')
+        # print(response)
+        json_response = response.json()
+        # print(json_response)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(json_response['ml_threshold'], 0.01)
+
+    def test_write_ml(self):
+        url = reverse('update_ml_api')
+        response = self.client.post(
+            url, 
+            { 'data' : {'ml_threshold' : 0.01} }, 
+            format='json'
+        )
+        # print(response)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    
