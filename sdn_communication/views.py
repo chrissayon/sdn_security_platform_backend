@@ -10,6 +10,7 @@ from .serializers import FlowAggregateDiffStatsSerializer, PortDiffStatsSerializ
 from .serializers import AttackNotificationSerializer, ConfigurationModelSerializer
 
 import json 
+from datetime import date
 
 # List switch hardware description
 class DescStatsView(APIView):
@@ -38,6 +39,28 @@ class FlowAggregateStatsView(APIView):
         serializer = FlowStatsSerializer(flow_agg_stats)
         #print(serializer.data)
         return Response(serializer.data)
+
+    def post(self, request):
+        '''Obtain flow aggregate statistics from database'''
+        data = json.loads(request.body.decode('utf-8'))
+        # print(data)
+        maxRecords = data['data']['maxRecords']
+        startDateYear = data['data']['startDateYear'] 
+        startDateMonth = data['data']['startDateMonth']
+        startDateDay = data['data']['startDateDay']
+        endDateYear = data['data']['endDateYear']
+        endDateMonth = data['data']['endDateMonth']
+        endDateDay = data['data']['endDateDay']
+       
+        startDate = date(startDateYear,startDateMonth,startDateDay)
+        endDate = date(endDateYear,endDateMonth,endDateDay)
+        
+        flow_stats = FlowAggregateStats.objects.filter(
+            created__range=(startDate, endDate)
+        ).order_by('-id')[:maxRecords]
+        flow_stats_reversed = reversed(flow_stats)       
+        serializer = FlowStatsSerializer(flow_stats_reversed, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 class PortStatsView(APIView):
 
@@ -84,9 +107,9 @@ class UpdateControllerIPView(APIView):
         return Response(serializer.data)
 
     def post(self,request):
-        print(request.body)
+        # print(request.body)
         data = json.loads(request.body.decode('utf-8'))
-        print(data['data']['controllerIP'])
+        # print(data['data']['controllerIP'])
         try:
             configuration_instance = ConfigurationModel.objects.get(id = 1)
             configuration_instance.controllerIP = data['data']['controllerIP']

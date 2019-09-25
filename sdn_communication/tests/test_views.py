@@ -19,7 +19,7 @@ class TestViews(APITestCase):
         PortStats.objects.create(tx_dropped = 60, port_no = 3)
 
 
-    def test_desc_stats_view(self):
+    def test_get_desc_stats_view(self):
         '''Testing desciption hardware API'''
         url = reverse('desc_api')
         response = self.client.get(url, format='json')
@@ -27,7 +27,7 @@ class TestViews(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         #self.assertEqual(json_response['dp_desc'], 'non-existent')
     
-    def test_flow_stats_view(self):
+    def test_get_flow_stats_view(self):
         '''Testing flow stats API'''
         url = reverse('flow_api')
         response = self.client.get(url, format='json')
@@ -35,7 +35,7 @@ class TestViews(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(json_response[0]['hard_timeout'], 50)
 
-    def test_flow_aggregate_stats_view(self):
+    def test_get_flow_aggregate_stats_view(self):
         '''Testing flow aggregate API'''
         url = reverse('flow_agg_api')
         response = self.client.get(url, format='json')
@@ -43,25 +43,36 @@ class TestViews(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(json_response['byte_count'], 100)
 
-    def test_port_stats_view(self):
+    def test_post_flow_aggregate_stats_view(self):
+        '''Testing flow stats API'''
+        url = reverse('flow_agg_api')
+        response = self.client.post(
+            url, 
+            { 'data' : {
+                'startDate' : '2018-01-20',
+                'endDate'   : '2020-01-20',
+                'maxRecords' : 100,
+                'startDateYear' : 2018,
+                'startDateMonth' : 1,
+                'startDateDay' : 20,
+                'endDateYear' : 2020,
+                'endDateMonth' : 1,
+                'endDateDay' : 20,
+                }
+            }, 
+            format='json'
+        )
+        
+        # json_response = response.json()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_port_stats_view(self):
         '''Testing port stats API'''
         url = reverse('port_api')
         response = self.client.get(url, format='json')
         json_response = response.json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(json_response[0]['tx_dropped'], 60)
-    
-    # def test_flow_aggregate_diff_view(self):
-    #     url = reverse('flow_agg_diff_api')
-    #     response = self.client.get(url, format='json')
-    #     json_response = response.json()
-    #     self.assertEqual(1, 1)
-
-    # def test_port_diff_view(self):
-    #     url = reverse('port_diff_api')
-    #     response = self.client.get(url, format='json')
-    #     json_response = response.json()
-    #     self.assertEqual(json_response['tx_dropped'], 10)
 
 class TestDiffViews(APITestCase):
     def setUp(self):
