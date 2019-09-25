@@ -11,6 +11,11 @@ from .serializers import AttackNotificationSerializer, ConfigurationModelSeriali
 
 import json 
 from datetime import date
+from datetime import datetime
+from django.utils.timezone import make_aware
+from django.utils import timezone
+import pytz
+from django.conf import settings
 
 # List switch hardware description
 class DescStatsView(APIView):
@@ -52,14 +57,19 @@ class FlowAggregateStatsView(APIView):
         endDateMonth = data['data']['endDateMonth']
         endDateDay = data['data']['endDateDay']
        
-        startDate = date(startDateYear,startDateMonth,startDateDay)
-        endDate = date(endDateYear,endDateMonth,endDateDay)
-        
+        startDate = datetime(startDateYear, startDateMonth, startDateDay)
+        endDate = datetime(endDateYear, endDateMonth, endDateDay)
+
+        awareStartDate = make_aware(startDate, timezone=pytz.timezone("Australia/Melbourne"))
+        awareEndDate = make_aware(endDate, timezone=pytz.timezone("Australia/Melbourne"))
+
         flow_stats = FlowAggregateStats.objects.filter(
-            created__range=(startDate, endDate)
+            created__range=(awareStartDate, awareEndDate)
         ).order_by('-id')[:maxRecords]
-        flow_stats_reversed = reversed(flow_stats)       
-        serializer = FlowStatsSerializer(flow_stats_reversed, many=True)
+        
+        # print(startDate.tzinfo)
+
+        serializer = FlowStatsSerializer(flow_stats, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 class PortStatsView(APIView):
@@ -72,6 +82,32 @@ class PortStatsView(APIView):
         #print(serializer.data)
         return Response(serializer.data)
 
+    def post(self, request):
+        '''Obtain flow aggregate statistics from database'''
+        data = json.loads(request.body.decode('utf-8'))
+        # print(data)
+        maxRecords = data['data']['maxRecords']
+        startDateYear = data['data']['startDateYear'] 
+        startDateMonth = data['data']['startDateMonth']
+        startDateDay = data['data']['startDateDay']
+        endDateYear = data['data']['endDateYear']
+        endDateMonth = data['data']['endDateMonth']
+        endDateDay = data['data']['endDateDay']
+       
+        startDate = datetime(startDateYear, startDateMonth, startDateDay)
+        endDate = datetime(endDateYear, endDateMonth, endDateDay)
+
+        awareStartDate = make_aware(startDate, timezone=pytz.timezone("Australia/Melbourne"))
+        awareEndDate = make_aware(endDate, timezone=pytz.timezone("Australia/Melbourne"))
+
+        port_stats = PortStats.objects.filter(
+            created__range=(awareStartDate, awareEndDate)
+        ).order_by('-id')[:maxRecords]
+          
+        serializer = PortStatsSerializer(port_stats, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
 class FlowAggregateDiffStatsView(APIView):
 
     def get(self, request):
@@ -80,6 +116,32 @@ class FlowAggregateDiffStatsView(APIView):
         flow_agg_diff_stats_reversed = reversed(flow_agg_diff_stats)
         serializer = FlowAggregateDiffStatsSerializer(flow_agg_diff_stats_reversed, many=True)
         return Response(serializer.data)
+    
+    def post(self, request):
+        '''Obtain flow aggregate statistics from database'''
+        data = json.loads(request.body.decode('utf-8'))
+        # print(data)
+        maxRecords = data['data']['maxRecords']
+        startDateYear = data['data']['startDateYear'] 
+        startDateMonth = data['data']['startDateMonth']
+        startDateDay = data['data']['startDateDay']
+        endDateYear = data['data']['endDateYear']
+        endDateMonth = data['data']['endDateMonth']
+        endDateDay = data['data']['endDateDay']
+       
+        startDate = datetime(startDateYear, startDateMonth, startDateDay)
+        endDate = datetime(endDateYear, endDateMonth, endDateDay)
+
+        awareStartDate = make_aware(startDate, timezone=pytz.timezone("Australia/Melbourne"))
+        awareEndDate = make_aware(endDate, timezone=pytz.timezone("Australia/Melbourne"))
+
+        
+        flow_agg_diff_stats = FlowAggregateDiffStats.objects.filter(
+            created__range=(awareStartDate, awareEndDate)
+        ).order_by('-id')[:maxRecords]
+          
+        serializer = FlowAggregateDiffStatsSerializer(flow_agg_diff_stats, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class PortDiffStatsView(APIView):
@@ -91,6 +153,31 @@ class PortDiffStatsView(APIView):
         port_diff_stats_reversed = reversed(port_diff_stats)
         serializer = PortDiffStatsSerializer(port_diff_stats_reversed, many=True)
         return Response(serializer.data)
+    
+    def post(self, request):
+        '''Obtain flow aggregate statistics from database'''
+        data = json.loads(request.body.decode('utf-8'))
+        # print(data)
+        maxRecords = data['data']['maxRecords']
+        startDateYear = data['data']['startDateYear'] 
+        startDateMonth = data['data']['startDateMonth']
+        startDateDay = data['data']['startDateDay']
+        endDateYear = data['data']['endDateYear']
+        endDateMonth = data['data']['endDateMonth']
+        endDateDay = data['data']['endDateDay']
+       
+        startDate = datetime(startDateYear, startDateMonth, startDateDay)
+        endDate = datetime(endDateYear, endDateMonth, endDateDay)
+
+        awareStartDate = make_aware(startDate, timezone=pytz.timezone("Australia/Melbourne"))
+        awareEndDate = make_aware(endDate, timezone=pytz.timezone("Australia/Melbourne"))
+
+        port_diff_stats = PortDiffStats.objects.filter(
+            created__range=(awareStartDate, awareEndDate)
+        ).order_by('-id')[:maxRecords]
+          
+        serializer = PortDiffStatsSerializer(PortDiffStats, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 class AttackNotificationView(APIView):
     
@@ -99,6 +186,32 @@ class AttackNotificationView(APIView):
         attack_notification_reversed = reversed(attack_notification)
         serializer = AttackNotificationSerializer(attack_notification_reversed, many=True)
         return Response(serializer.data)
+    
+    def post(self, request):
+        '''Obtain flow aggregate statistics from database'''
+        data = json.loads(request.body.decode('utf-8'))
+        # print(data)
+        maxRecords = data['data']['maxRecords']
+        startDateYear = data['data']['startDateYear'] 
+        startDateMonth = data['data']['startDateMonth']
+        startDateDay = data['data']['startDateDay']
+        endDateYear = data['data']['endDateYear']
+        endDateMonth = data['data']['endDateMonth']
+        endDateDay = data['data']['endDateDay']
+       
+        startDate = datetime(startDateYear, startDateMonth, startDateDay)
+        endDate = datetime(endDateYear, endDateMonth, endDateDay)
+        
+        awareStartDate = make_aware(startDate, timezone=pytz.timezone("Australia/Melbourne"))
+        awareEndDate = make_aware(endDate, timezone=pytz.timezone("Australia/Melbourne"))
+
+        attack_notification = AttackNotification.objects.filter(
+            created__range=(awareStartDate, awareEndDate)
+        ).order_by('-id')[:maxRecords]
+          
+        serializer = AttackNotificationSerializer(attack_notification, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
 
 class UpdateControllerIPView(APIView):
     def get(self,request):
