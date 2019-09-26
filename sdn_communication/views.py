@@ -99,10 +99,17 @@ class PortStatsView(APIView):
 
         awareStartDate = make_aware(startDate, timezone=pytz.timezone("Australia/Melbourne"))
         awareEndDate = make_aware(endDate, timezone=pytz.timezone("Australia/Melbourne"))
-
-        port_stats = PortStats.objects.filter(
-            created__range=(awareStartDate, awareEndDate)
-        ).order_by('-id')[:maxRecords]
+        
+        port_no = data['data']['port_no']
+  
+        if port_no == 'All':
+            port_stats = PortStats.objects.filter(
+                created__range=(awareStartDate, awareEndDate)
+            ).order_by('-id')[:maxRecords]
+        else:
+            port_stats = PortStats.objects.filter(
+                created__range=(awareStartDate, awareEndDate)
+            ).filter(port_no=port_no).order_by('-id')[:maxRecords]
           
         serializer = PortStatsSerializer(port_stats, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -140,6 +147,7 @@ class FlowAggregateDiffStatsView(APIView):
             created__range=(awareStartDate, awareEndDate)
         ).order_by('-id')[:maxRecords]
           
+
         serializer = FlowAggregateDiffStatsSerializer(flow_agg_diff_stats, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -172,11 +180,20 @@ class PortDiffStatsView(APIView):
         awareStartDate = make_aware(startDate, timezone=pytz.timezone("Australia/Melbourne"))
         awareEndDate = make_aware(endDate, timezone=pytz.timezone("Australia/Melbourne"))
 
-        port_diff_stats = PortDiffStats.objects.filter(
-            created__range=(awareStartDate, awareEndDate)
-        ).order_by('-id')[:maxRecords]
+        port_no = data['data']['port_no']
+  
+        if port_no == 'All':
+            port_diff_stats = PortDiffStats.objects.filter(
+                created__range=(awareStartDate, awareEndDate)
+            ).order_by('-id')[:maxRecords]
+        else:
+            port_diff_stats = PortDiffStats.objects.filter(
+                created__range=(awareStartDate, awareEndDate)
+            ).filter(port_no=port_no).order_by('-id')[:maxRecords]
+        
+       
           
-        serializer = PortDiffStatsSerializer(PortDiffStats, many=True)
+        serializer = PortDiffStatsSerializer(port_diff_stats, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 class AttackNotificationView(APIView):
