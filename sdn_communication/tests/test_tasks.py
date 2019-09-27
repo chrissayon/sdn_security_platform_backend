@@ -1,17 +1,21 @@
 from django.test import TestCase
-from sdn_communication.tasks import get_switch_number, get_switch_desc, get_flow_stats, get_agg_flow_stats, get_port_stats
-from sdn_communication.tasks import write_switch_desc, write_flow_stats, write_agg_flow_stats, write_port_stats
+from sdn_communication.tasks import write_switch_number, get_switch_desc, get_flow_stats, get_agg_flow_stats, get_port_stats
+from sdn_communication.tasks import write_switch_desc, write_switch_desc, write_flow_stats, write_agg_flow_stats, write_port_stats
 from sdn_communication.tasks import write_flow_agg_diff_stats, write_port_diff_stats
 from sdn_communication.tasks import ml_flow_agg_diff_stats
-from sdn_communication.models import Switch, DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats 
+from sdn_communication.models import Switch, DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats
 from sdn_communication.models import FlowAggregateDiffStats, PortDiffStats
 from rest_framework import status
 from requests.models import Response
 
 class TasksTestCase(TestCase):
-    
+
     @classmethod
     def setUpTestData(cls):
+        # Switch Description ID
+        cls.switch_id_response = Response()
+        cls.switch_id_response.status_code = 200
+        cls.switch_id_response._content = b'[123917682137064]'
 
         # Flow statistics response
         cls.flow_stats_response = Response()
@@ -34,7 +38,7 @@ class TasksTestCase(TestCase):
                 "dl_src"  : "00:00:00:00:00:00", \
                 "in_port" : "3" }, \
             "serial_num" : "1234" }]}'
-        
+
         # Description hardware response
         cls.switch_desc_response = Response()
         cls.switch_desc_response.status_code = 200
@@ -43,7 +47,7 @@ class TasksTestCase(TestCase):
             "hw_desc"    : "Open VSwitch",  \
             "sw_desc"    : "None",          \
             "serial_num" : "Nicira, Inc." }}'
-        
+
         cls.flow_agg_stats_response = Response()
         cls.flow_agg_stats_response.status_code = 200
         cls.flow_agg_stats_response._content = b'{ "1" : [{\
@@ -69,6 +73,9 @@ class TasksTestCase(TestCase):
             "duration_sec"  : "26489",    \
             "rx_errors"     : "0",        \
             "tx_packets"    : "0"}]}'
+    def test_write_switch_number(self):
+        """Writing hardware ID to the database"""
+        self.assertEqual(write_switch_number(self.switch_id_response), True)
 
     def test_write_switch_desc(self):
         """Writing the hardware description to the database"""
@@ -97,11 +104,11 @@ class TasksDiffTestCase(TestCase):
         PortStats.objects.create(tx_dropped = 20, port_no = 3)
         PortStats.objects.create(tx_dropped = 40, port_no = 3)
         PortStats.objects.create(tx_dropped = 80, port_no = 3)
-        
+
         FlowAggregateStats.objects.create(byte_count = 100)
         FlowAggregateStats.objects.create(byte_count = 200)
         FlowAggregateStats.objects.create(byte_count = 350)
-    
+
     def test_flow_agg_diff(self):
         """Writing the flow aggregate difference of two records"""
         self.assertEqual(write_flow_agg_diff_stats(), True)
@@ -117,13 +124,13 @@ class TasksDiffTestCase(TestCase):
         self.assertEqual(port_stats_diff_instance.tx_dropped, 10)
 
 class TasksDiffTestCaseNoModel(TestCase):
-    
+
     def test_flow_agg_diff_no_model(self):
         """Checking the port value difference of two records"""
         self.assertFalse(write_flow_agg_diff_stats())
         write_flow_agg_diff_stats()
         self.assertFalse(False)
- 
+
 class TasksMachineLearning(TestCase):
     def setUp(self):
         FlowAggregateDiffStats.objects.create(
