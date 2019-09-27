@@ -7,7 +7,6 @@ import numpy as np
 import time
 import datetime
 
-from .models import Switch
 from .models import DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats
 from .models import FlowAggregateDiffStats, PortDiffStats, AttackNotification
 
@@ -18,42 +17,26 @@ def get_switch_number():
 
 def get_switch_desc():
     '''Check the switch desciption'''
-    response = requests.get('http://0.0.0.0:8080/stats/desc/123917682137064')
+    response = requests.get('http://0.0.0.0:8080/stats/desc/1')
     return response
 
 def get_flow_stats():
     '''Check the flow stats in the network'''
-    response = requests.get('http://0.0.0.0:8080/stats/flow/123917682137064')
+    response = requests.get('http://0.0.0.0:8080/stats/flow/1')
     return response
 
 def get_agg_flow_stats():
     '''Check the aggregate flow stats on the switch'''
-    response = requests.get('http://0.0.0.0:8080/stats/aggregateflow/123917682137064')
+    response = requests.get('http://0.0.0.0:8080/stats/aggregateflow/1')
     return response
 
 def get_port_stats():
     '''Check the port stats on the switch'''
-    response = requests.get('http://0.0.0.0:8080/stats/port/123917682137064')
+    response = requests.get('http://0.0.0.0:8080/stats/port/1')
     return response
 
-def write_switch_number(response_data):
-    '''Write Switch number to database'''
-    if response_data.status_code != status.HTTP_200_OK:
-        return False
-    else:
-        json_data = response_data.json()
-        try:
-            # If entry already exists in database, update it
-            switch_instance = Switch.objects.get(id=1)
-            switch_instance.switch_number = json_data[0],
-            switch_instance.save()
-        except Switch.DoesNotExist:
-            # If entry doesn't exists, create a new one
-            switch_desc_instance = Switch.objects.create(
-                switch_number = json_data[0],
-            )
-        return True
-
+def write_switch_number(json_data):
+    pass
 
 def write_switch_desc(response_data):
     '''Write hardware description to database'''
@@ -146,7 +129,7 @@ def write_port_stats(response_data):
         #             rx_errors     = json_data[i]["rx_errors"],
         #             tx_packets    = json_data[i]["tx_packets"],
         #         )
-
+       
         for i in range(0, max_loop):
             port_stats_instance = PortStats.objects.create(
                 dpid          = dict_keys[0],
@@ -276,14 +259,14 @@ def write_flow_agg_diff_stats():
     if(length_flow_agg <= 1):
         return False
 
-    # Obtain last and second last entry
+    # Obtain last and second last entry    
     latest_flow_agg_stats = flow_agg_stats[length_flow_agg - 1]
     penultimate_flow_agg_stats = flow_agg_stats[length_flow_agg - 2]
 
     diff_packet_count = latest_flow_agg_stats.packet_count - penultimate_flow_agg_stats.packet_count
     diff_byte_count   = latest_flow_agg_stats.byte_count - penultimate_flow_agg_stats.byte_count
     diff_flow_count   = latest_flow_agg_stats.flow_count - penultimate_flow_agg_stats.flow_count
-
+    
     # If negative entry
     if(diff_packet_count < 0):
         return False
@@ -307,15 +290,15 @@ def write_flow_agg_diff_stats():
 
 def write_port_diff_stats(port):
     '''Write flow statistics to database'''
-    port_stats = PortStats.objects.filter(port_no = port)
-
+    port_stats = PortStats.objects.filter(port_no = port) 
+    
     length_port = len(port_stats)
 
     # Check if there are at least two entries
     if(length_port <= 1):
         return False
 
-    # Obtain last and second last entry
+    # Obtain last and second last entry    
     latest_port_stats = port_stats[length_port - 1]
     penultimate_port_stats = port_stats[length_port - 2]
     port_stats_instance = PortDiffStats.objects.create(
@@ -373,7 +356,7 @@ def ml_flow_agg_diff_stats(threshold):
     # print(attack_notification.percentage)
     # print(attack_notification.threshold)
     # print(attack_notification.attack_true)
-    # p/stats/switchesrint(datetime.datetime.now().timestamp() - flow_agg_diff_stats.created.timestamp())
+    # print(datetime.datetime.now().timestamp() - flow_agg_diff_stats.created.timestamp())
     # print(flow_agg_diff_stats.time_interval)
     # # print("\n")
     # print(result)
@@ -382,37 +365,35 @@ def ml_flow_agg_diff_stats(threshold):
 
 @task(name='summary')
 def sdn_data_retreieval():
-    # Switch ID
-    switch_ID = get_switch_number()
-    switch_ID_result = write_switch_number(switch_ID)
+    # # Hardware description
+    # switch_desc = get_switch_desc()
+    # switch_desc_result = write_switch_desc(switch_desc)
 
-    # Hardware description
-    switch_desc = get_switch_desc()
-    switch_desc_result = write_switch_desc(switch_desc)
+    # # FLow stats
+    # flow_stats = get_flow_stats()
+    # flow_stats_result = write_flow_stats(flow_stats)
 
-    # FLow stats
-    flow_stats = get_flow_stats()
-    flow_stats_result = write_flow_stats(flow_stats)
+    # # Flow Aggregate stats
+    # agg_flow_stats = get_agg_flow_stats()
+    # agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
 
-    # Flow Aggregate stats
-    agg_flow_stats = get_agg_flow_stats()
-    agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
-
-    # Port Stats
-    port_stats = get_port_stats()
-    port_stats_result = write_port_stats(port_stats)
+    # # Port Stats
+    # port_stats = get_port_stats()
+    # port_stats_result = write_port_stats(port_stats)
 
     # # Flow Aggregate Stats difference
     flow_agg_diff_stats = write_flow_agg_diff_stats()
-
-    # Port stat difference
-    write_port_diff_stats(1)
-    write_port_diff_stats(2)
-    write_port_diff_stats(3)
-    write_port_diff_stats('LOCAL')
+    
+    # # Port stat difference
+    # write_port_diff_stats(1)
+    # write_port_diff_stats(2)
+    # write_port_diff_stats(3)
+    # write_port_diff_stats('LOCAL')
 
     # # Run port data through classifier
     ml_flow_agg_diff_stats(0)
     # t0 = time.time()
     time.sleep(5)
     # t1 = time.time()
+
+
