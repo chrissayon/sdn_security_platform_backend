@@ -17,22 +17,29 @@ def get_switch_number():
 
 def get_switch_desc():
     '''Check the switch desciption'''
-    response = requests.get('http://0.0.0.0:8080/stats/desc/1')
+    switch_instance = Switch.objects.get(id = 1)
+    response = requests.get('http://0.0.0.0:8080/stats/desc/' + str(switch_instance.switch_number))
     return response
 
 def get_flow_stats():
     '''Check the flow stats in the network'''
-    response = requests.get('http://0.0.0.0:8080/stats/flow/1')
+    switch_instance = Switch.objects.get(id = 1)
+    # response = requests.get('http://0.0.0.0:8080/stats/flow/1')
+    response = requests.get('http://0.0.0.0:8080/stats/flow/' + str(switch_instance.switch_number))
     return response
 
 def get_agg_flow_stats():
     '''Check the aggregate flow stats on the switch'''
-    response = requests.get('http://0.0.0.0:8080/stats/aggregateflow/1')
+    switch_instance = Switch.objects.get(id = 1)
+    # response = requests.get('http://0.0.0.0:8080/stats/aggregateflow/1')
+    response = requests.get('http://0.0.0.0:8080/stats/aggregateflow/' + str(switch_instance.switch_number))
     return response
 
 def get_port_stats():
     '''Check the port stats on the switch'''
-    response = requests.get('http://0.0.0.0:8080/stats/port/1')
+    switch_instance = Switch.objects.get(id = 1)
+    # response = requests.get('http://0.0.0.0:8080/stats/port/1')
+    response = requests.get('http://0.0.0.0:8080/stats/port/' + str(switch_instance.switch_number))
     return response
 
 def write_switch_number(response_data):
@@ -60,14 +67,16 @@ def write_switch_desc(response_data):
         return False
     else:
         json_data_full = response_data.json()
-        # print(len(json_data_full))
-        # if len(json_data_full) != 0:
+        # if len(json_data_full) == 0:
         #     return False
 
         json_keys = json_data_full.keys()
         dict_keys = list(json_keys)
         json_data = json_data_full[dict_keys[0]]
-        # print(json_data)
+
+        # Exit if there is no data on controller response
+        if len(json_data) == 0:
+            return False
 
         try:
             # If entry already exists in database, update it
@@ -101,6 +110,10 @@ def write_port_stats(response_data):
         dict_keys = list(json_keys)
         json_data = json_data_full[dict_keys[0]]
         max_loop = len(json_data)
+
+        # Exit if there is no data on controller response
+        if len(json_data) == 0:
+            return False
 
         # Cycle through all the flow entries
         # for i in range(0, max_loop):
@@ -182,6 +195,11 @@ def write_agg_flow_stats(response_data):
         json_data = json_data_full[dict_keys[0]]
         max_loop = len(json_data)
 
+        # Exit if there is no data on controller response
+        if len(json_data) == 0:
+            return False
+
+
         # # Cycle through all the flow entries
         # for i in range(0, max_loop):
         #     try:
@@ -222,6 +240,10 @@ def write_flow_stats(response_data):
         dict_keys = list(json_keys)
         json_data = json_data_full[dict_keys[0]]
         max_loop = len(json_data)
+
+        # Exit if there is no data on controller response
+        if len(json_data) == 0:
+            return False
 
         # Cycle through all the flow entries
         for i in range(0, max_loop):
@@ -383,30 +405,30 @@ def sdn_data_retreieval():
     switch_number = get_switch_number()
     write_switch_number(switch_number)
 
-    # # Hardware description
-    # switch_desc = get_switch_desc()
-    # switch_desc_result = write_switch_desc(switch_desc)
+    # Hardware description
+    switch_desc = get_switch_desc()
+    switch_desc_result = write_switch_desc(switch_desc)
 
-    # # FLow stats
-    # flow_stats = get_flow_stats()
-    # flow_stats_result = write_flow_stats(flow_stats)
+    # FLow stats
+    flow_stats = get_flow_stats()
+    flow_stats_result = write_flow_stats(flow_stats)
 
-    # # Flow Aggregate stats
-    # agg_flow_stats = get_agg_flow_stats()
-    # agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
+    # Flow Aggregate stats
+    agg_flow_stats = get_agg_flow_stats()
+    agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
 
-    # # Port Stats
-    # port_stats = get_port_stats()
-    # port_stats_result = write_port_stats(port_stats)
+    # Port Stats
+    port_stats = get_port_stats()
+    port_stats_result = write_port_stats(port_stats)
 
-    # # Flow Aggregate Stats difference
+    # Flow Aggregate Stats difference
     flow_agg_diff_stats = write_flow_agg_diff_stats()
 
-    # # Port stat difference
-    # write_port_diff_stats(1)
-    # write_port_diff_stats(2)
-    # write_port_diff_stats(3)
-    # write_port_diff_stats('LOCAL')
+    # Port stat difference
+    write_port_diff_stats(1)
+    write_port_diff_stats(2)
+    write_port_diff_stats(3)
+    write_port_diff_stats('LOCAL')
 
     # # Run port data through classifier
     ml_flow_agg_diff_stats(0)
