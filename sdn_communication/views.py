@@ -216,6 +216,7 @@ class AttackNotificationView(APIView):
         endDateYear = data['data']['endDateYear']
         endDateMonth = data['data']['endDateMonth']
         endDateDay = data['data']['endDateDay']
+        dataType = data['data']['filter']
        
         startDate = datetime(startDateYear, startDateMonth, startDateDay)
         endDate = datetime(endDateYear, endDateMonth, endDateDay)
@@ -223,9 +224,14 @@ class AttackNotificationView(APIView):
         awareStartDate = make_aware(startDate, timezone=pytz.timezone("Australia/Melbourne"))
         awareEndDate = make_aware(endDate, timezone=pytz.timezone("Australia/Melbourne"))
 
-        attack_notification = AttackNotification.objects.filter(
-            created__range=(awareStartDate, awareEndDate)
-        ).order_by('-id')[:maxRecords]
+        if dataType == 'All':
+            attack_notification = AttackNotification.objects.filter(
+                created__range=(awareStartDate, awareEndDate)
+            ).order_by('-id')[:maxRecords]
+        else:
+            attack_notification = AttackNotification.objects.filter(
+                created__range=(awareStartDate, awareEndDate)
+            ).filter(attack_vector=dataType).order_by('-id')[:maxRecords]
           
         serializer = AttackNotificationSerializer(attack_notification, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -282,28 +288,6 @@ class UpdateMLView(APIView):
             )
             return Response(data=data["data"], status=status.HTTP_201_CREATED)
 
-# class UpdateThresholdStatsView(APIView):
-#     def get(self,request):
-#         configuration_instance = ConfigurationModel.objects.get(id = 1)
-#         serializer = ConfigurationModelSerializer(configuration_instance)
-#         return Response(serializer.data)
-
-#     def post(self,request):
-#         data = json.loads(request.body.decode('utf-8'))
-#         try:
-#             configuration_instance = ConfigurationModel.objects.get(id = 1)
-#             configuration_instance.flow_aggregate_threshold = data['data']['flow_aggregate_threshold']
-#             configuration_instance.save()
-#             return Response(data=data["data"], status=status.HTTP_200_OK)
-#         except ConfigurationModel.DoesNotExist:
-#             # If entry doesn't exists, create a new one
-#             configuration_instance = ConfigurationModel.objects.create(
-#                  flow_aggregate_threshold = data['data']['flow_aggregate_threshold'], 
-#             )
-#             return Response(data=data["data"], status=status.HTTP_201_CREATED)
-
-
-
 class PortGraphView(APIView):
     def get(self, request):
         '''Get port data for graphing'''
@@ -352,8 +336,6 @@ class PortDiffGraphView(APIView):
         port_diff_result = list(chain(port_diff_stats_1, port_diff_stats_2, port_diff_stats_3, port_diff_stats_LOCAL))
         serializer = PortDiffStatsSerializer(port_diff_result, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-
 
 
 class FlowAggregateDiffGraphView(APIView):

@@ -221,7 +221,18 @@ class TestDiffViews(APITestCase):
 
 class AttackNotificationView(APITestCase):
     def setUp(self):
-        AttackNotification.objects.create(percentage=0.3)
+        AttackNotification.objects.create(
+            percentage=0.3
+        )
+
+        AttackNotification.objects.create(
+            attack_type   = "Denial of Service",
+            attack_vector = "Flow Aggregate",
+            percentage    = -2,
+            threshold     = 500,
+            attack_true   = 1,
+        )
+        
 
     def test_get_attack_notification_view(self):
         '''Testing the machine learnign result'''
@@ -231,8 +242,8 @@ class AttackNotificationView(APITestCase):
         # print(json_response)
         self.assertEqual(json_response[0]['percentage'], 0.3)
     
-    def test_post_attack_notification_view(self):
-        '''Testing flow stats API'''
+    def test_post_all_attack_notification_view(self):
+        '''Testing post for all filter'''
         url = reverse('attack_notification_api')
         response = self.client.post(
             url, 
@@ -246,6 +257,30 @@ class AttackNotificationView(APITestCase):
                 'endDateYear' : 2020,
                 'endDateMonth' : 1,
                 'endDateDay' : 20,
+                'filter' : 'All'
+                }
+            }, 
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_post_filter_attack_notification_view(self):
+        '''Testing post for filter'''
+        url = reverse('attack_notification_api')
+        response = self.client.post(
+            url, 
+            { 'data' : {
+                'startDate' : '2018-01-20',
+                'endDate'   : '2020-01-20',
+                'maxRecords' : 100,
+                'startDateYear' : 2018,
+                'startDateMonth' : 1,
+                'startDateDay' : 20,
+                'endDateYear' : 2020,
+                'endDateMonth' : 1,
+                'endDateDay' : 20,
+                'filter' : 'Flow Aggregate'
                 }
             }, 
             format='json'

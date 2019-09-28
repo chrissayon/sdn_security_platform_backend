@@ -8,7 +8,7 @@ import time
 import datetime
 
 from .models import Switch, DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats
-from .models import FlowAggregateDiffStats, PortDiffStats, AttackNotification
+from .models import FlowAggregateDiffStats, PortDiffStats, AttackNotification, ConfigurationModel
 
 def get_switch_number():
     '''Check the amount of switches in the network'''
@@ -362,6 +362,30 @@ def write_port_diff_stats(port):
 
     return True
 
+def flow_aggregate_difference_threshold():
+    '''Check if flow aggregate difference is bigger than threshold'''
+    # Get flow aggregate stats
+    flow_agg_diff_stats = FlowAggregateDiffStats.objects.last()
+    byte_count = flow_agg_diff_stats.byte_count
+    
+    # Get threshold
+    configuration_instance = ConfigurationModel.objects.get(id = 1)
+    byte_count_threshold = configuration_instance.flow_aggregate_threshold
+    
+    attack_true = byte_count > byte_count_threshold
+
+    if (attack_true):
+        attack_notification = AttackNotification.objects.create(
+            attack_type   = "Denial of Service", #DDoS, controller comprmise, etc
+            attack_vector = "Flow Aggregate Difference", #Where the attack came from (flow_aggregate, port statistics)
+            percentage    = -1, # Percentage of the value from the machine learning model
+            threshold     = byte_count_threshold, # Threshold for value to be considered valid
+            attack_true   = attack_true # Attack is valid when percentage > threshold
+        )
+        return True
+    else:
+        return False
+
 def ml_flow_agg_diff_stats(threshold):
     model = tf.keras.models.load_model('my_model.h5')
     flow_agg_diff_stats = FlowAggregateDiffStats.objects.last()
@@ -400,38 +424,44 @@ def ml_flow_agg_diff_stats(threshold):
     return True
 
 
+# @task(name='summary')
+# def sdn_data_retreieval():
+#     switch_number = get_switch_number()
+#     write_switch_number(switch_number)
+
+#     # Hardware description
+#     switch_desc = get_switch_desc()
+#     switch_desc_result = write_switch_desc(switch_desc)
+
+#     # FLow stats
+#     flow_stats = get_flow_stats()
+#     flow_stats_result = write_flow_stats(flow_stats)
+
+#     # Flow Aggregate stats
+#     agg_flow_stats = get_agg_flow_stats()
+#     agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
+
+#     # Port Stats
+#     port_stats = get_port_stats()
+#     port_stats_result = write_port_stats(port_stats)
+
+#     # Flow Aggregate Stats difference
+#     flow_agg_diff_stats = write_flow_agg_diff_stats()
+
+#     # Port stat difference
+#     write_port_diff_stats(1)
+#     write_port_diff_stats(2)
+#     write_port_diff_stats(3)
+#     write_port_diff_stats('LOCAL')
+
+#     # # Run port data through classifier
+#     ml_flow_agg_diff_stats(0)
+#     # t0 = time.time()
+#     time.sleep(5)
+#     # t1 = time.time()
+
 @task(name='summary')
 def sdn_data_retreieval():
-    switch_number = get_switch_number()
-    write_switch_number(switch_number)
-
-    # Hardware description
-    switch_desc = get_switch_desc()
-    switch_desc_result = write_switch_desc(switch_desc)
-
-    # FLow stats
-    flow_stats = get_flow_stats()
-    flow_stats_result = write_flow_stats(flow_stats)
-
-    # Flow Aggregate stats
-    agg_flow_stats = get_agg_flow_stats()
-    agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
-
-    # Port Stats
-    port_stats = get_port_stats()
-    port_stats_result = write_port_stats(port_stats)
-
-    # Flow Aggregate Stats difference
-    flow_agg_diff_stats = write_flow_agg_diff_stats()
-
-    # Port stat difference
-    write_port_diff_stats(1)
-    write_port_diff_stats(2)
-    write_port_diff_stats(3)
-    write_port_diff_stats('LOCAL')
-
-    # # Run port data through classifier
-    ml_flow_agg_diff_stats(0)
-    # t0 = time.time()
+    flow_aggregate_difference_threshold
     time.sleep(5)
-    # t1 = time.time()
+    

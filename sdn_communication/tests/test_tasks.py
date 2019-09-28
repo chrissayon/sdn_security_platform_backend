@@ -2,9 +2,9 @@ from django.test import TestCase
 from sdn_communication.tasks import get_switch_number, get_switch_desc, get_flow_stats, get_agg_flow_stats, get_port_stats
 from sdn_communication.tasks import write_switch_desc, write_flow_stats, write_agg_flow_stats, write_port_stats
 from sdn_communication.tasks import write_flow_agg_diff_stats, write_port_diff_stats
-from sdn_communication.tasks import ml_flow_agg_diff_stats
+from sdn_communication.tasks import ml_flow_agg_diff_stats, flow_aggregate_difference_threshold
 from sdn_communication.models import Switch, DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats 
-from sdn_communication.models import FlowAggregateDiffStats, PortDiffStats
+from sdn_communication.models import FlowAggregateDiffStats, PortDiffStats, ConfigurationModel
 from rest_framework import status
 from requests.models import Response
 
@@ -139,3 +139,51 @@ class TasksMachineLearning(TestCase):
 
     def test_machine_learning_agg_stats(self):
         self.assertTrue(ml_flow_agg_diff_stats(0.1))
+
+class TasksThresholdsPass(TestCase):
+    def setUp(self):
+        FlowAggregateDiffStats.objects.create(
+            packet_count = 1000,
+            byte_count = 1000,
+            flow_count = 1000,
+            latest_flow_fk = FlowAggregateStats.objects.create(),
+            penultimate_flow_fk = FlowAggregateStats.objects.create()
+            # time = 10,
+            # api_retry = 0
+        )
+
+        ConfigurationModel.objects.create(
+            ml_threshold = 0.01, 
+            port_threshold = 500,
+            port_diff_threshold = 500,
+            flow_aggregate_threshold = 500,
+            flow_aggregate_difference_threshold = 50,
+        )
+    
+    def test_flow_agg_threshold(self):
+        result = flow_aggregate_difference_threshold()
+        self.assertTrue(result)
+
+class TasksThresholdsFail(TestCase):
+    def setUp(self):
+        FlowAggregateDiffStats.objects.create(
+            packet_count = 0,
+            byte_count = 0,
+            flow_count = 0,
+            latest_flow_fk = FlowAggregateStats.objects.create(),
+            penultimate_flow_fk = FlowAggregateStats.objects.create()
+            # time = 10,
+            # api_retry = 0
+        )
+
+        ConfigurationModel.objects.create(
+            ml_threshold = 0.01, 
+            port_threshold = 500,
+            port_diff_threshold = 500,
+            flow_aggregate_threshold = 500,
+            flow_aggregate_difference_threshold = 50,
+        )
+    
+    def test_flow_agg_threshold(self):
+        result = flow_aggregate_difference_threshold()
+        self.assertFalse(result)
