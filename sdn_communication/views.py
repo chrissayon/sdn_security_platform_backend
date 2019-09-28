@@ -261,6 +261,7 @@ class UpdateMLView(APIView):
 
     def post(self,request):
         data = json.loads(request.body.decode('utf-8'))
+        print(data['data'])
         try:
             configuration_instance = ConfigurationModel.objects.get(id = 1)
             configuration_instance.ml_threshold = data['data']['ml_threshold']
