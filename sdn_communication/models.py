@@ -127,6 +127,10 @@ class AttackNotification(models.Model):
 class ConfigurationModel(models.Model):
     controllerIP = models.CharField(default = "0.0.0.0", max_length = 50)
     ml_threshold = models.FloatField(default = -1)
+    port_threshold = models.IntegerField(default = -1)
+    port_diff_threshold = models.IntegerField(default = -1)
+    flow_aggregate_threshold = models.IntegerField(default = -1)
+    flow_aggregate_difference_threshold = models.IntegerField(default = -1)
 
 class Switch(models.Model):
     switch_number = models.IntegerField(default=-1)

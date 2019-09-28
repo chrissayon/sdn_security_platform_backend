@@ -15,6 +15,7 @@ urlpatterns = [
     # Configuration related
     path('update_controller_IP/', views.UpdateControllerIPView.as_view(), name='update_controller_IP_api'),
     path('update_ml_threshold/', views.UpdateMLView.as_view(), name='update_ml_api'),
+    # path('update_flow_aggregate_threshold/', views.UpdateFlowAggregateThresholdView.as_view(), name='update_flow_aggregate_threshold_api'),
     
     # Graph related
     path('port_graph/', views.PortGraphView.as_view(), name='port_graph_api'),

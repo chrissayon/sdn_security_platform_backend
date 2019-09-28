@@ -310,7 +310,13 @@ class ConfigurationDataView(APITestCase):
         url = reverse('update_ml_api')
         response = self.client.post(
             url, 
-            { 'data' : {'ml_threshold' : 0.01} }, 
+            { 'data' : { 
+                'ml_threshold' : 0.01,
+                'port_threshold' : 10000000000,
+                'port_diff_threshold' : 500,
+                'flow_aggregate_threshold' :700000000,
+                'flow_aggregate_difference_threshold' :200,
+                }}, 
             format='json'
         )
         # print(response)
