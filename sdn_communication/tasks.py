@@ -370,18 +370,21 @@ def flow_aggregate_difference_threshold():
     
     # Get threshold
     configuration_instance = ConfigurationModel.objects.get(id = 1)
-    byte_count_threshold = configuration_instance.flow_aggregate_threshold
+    byte_count_threshold = configuration_instance.flow_aggregate_difference_threshold
     
     attack_true = byte_count > byte_count_threshold
-
+    print(byte_count)
+    print(byte_count_threshold)
     if (attack_true):
         attack_notification = AttackNotification.objects.create(
             attack_type   = "Denial of Service", #DDoS, controller comprmise, etc
             attack_vector = "Flow Aggregate Difference", #Where the attack came from (flow_aggregate, port statistics)
             percentage    = -1, # Percentage of the value from the machine learning model
+            attack_value  = byte_count,
             threshold     = byte_count_threshold, # Threshold for value to be considered valid
             attack_true   = attack_true # Attack is valid when percentage > threshold
         )
+        print("Wrote to database")
         return True
     else:
         return False
@@ -462,6 +465,6 @@ def ml_flow_agg_diff_stats(threshold):
 
 @task(name='summary')
 def sdn_data_retreieval():
-    flow_aggregate_difference_threshold
+    flow_aggregate_difference_threshold()
     time.sleep(5)
     
