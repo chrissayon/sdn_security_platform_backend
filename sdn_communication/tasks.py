@@ -362,6 +362,33 @@ def write_port_diff_stats(port):
 
     return True
 
+def flow_aggregate_threshold():
+    '''Check if flow aggregate difference is bigger than threshold'''
+    # Get flow aggregate stats
+    flow_agg_stats = FlowAggregateStats.objects.last()
+    byte_count = flow_agg_stats.byte_count
+    
+    # Get threshold
+    configuration_instance = ConfigurationModel.objects.get(id = 1)
+    byte_count_threshold = configuration_instance.flow_aggregate_threshold
+    
+    attack_true = byte_count > byte_count_threshold
+    # print(byte_count)
+    # print(byte_count_threshold)
+    if (attack_true):
+        attack_notification = AttackNotification.objects.create(
+            attack_type   = "Threshold Exceeded", #DDoS, controller comprmise, etc
+            attack_vector = "Flow Aggregate", #Where the attack came from (flow_aggregate, port statistics)
+            percentage    = -1, # Percentage of the value from the machine learning model
+            attack_value  = byte_count,
+            threshold     = byte_count_threshold, # Threshold for value to be considered valid
+            attack_true   = attack_true # Attack is valid when percentage > threshold
+        )
+        # print("Wrote to database")
+        return True
+    else:
+        return False
+
 def flow_aggregate_difference_threshold():
     '''Check if flow aggregate difference is bigger than threshold'''
     # Get flow aggregate stats
@@ -373,8 +400,8 @@ def flow_aggregate_difference_threshold():
     byte_count_threshold = configuration_instance.flow_aggregate_difference_threshold
     
     attack_true = byte_count > byte_count_threshold
-    print(byte_count)
-    print(byte_count_threshold)
+    # print(byte_count)
+    # print(byte_count_threshold)
     if (attack_true):
         attack_notification = AttackNotification.objects.create(
             attack_type   = "Denial of Service", #DDoS, controller comprmise, etc
@@ -384,7 +411,59 @@ def flow_aggregate_difference_threshold():
             threshold     = byte_count_threshold, # Threshold for value to be considered valid
             attack_true   = attack_true # Attack is valid when percentage > threshold
         )
-        print("Wrote to database")
+        # print("Wrote to database")
+        return True
+    else:
+        return False
+
+def port_threshold(portNumber):
+    '''Check if flow aggregate difference is bigger than threshold'''
+    # Get flow aggregate stats
+    port_stats = PortStats.objects.filter(port_no=portNumber).last()
+    rx_bytes = port_stats.rx_bytes
+    
+    # Get threshold
+    configuration_instance = ConfigurationModel.objects.get(id = 1)
+    rx_bytes_threshold = configuration_instance.port_threshold
+    
+    attack_true = rx_bytes > rx_bytes_threshold
+
+    if (attack_true):
+        attack_notification = AttackNotification.objects.create(
+            attack_type   = "Threshold Exceeded", #DDoS, controller comprmise, etc
+            attack_vector = "Port " + portNumber, #Where the attack came from (flow_aggregate, port statistics)
+            percentage    = -1, # Percentage of the value from the machine learning model
+            attack_value  = rx_bytes,
+            threshold     = rx_bytes_threshold, # Threshold for value to be considered valid
+            attack_true   = attack_true # Attack is valid when percentage > threshold
+        )
+        # print("Wrote to database")
+        return True
+    else:
+        return False
+
+def port_diff_threshold(portNumber):
+    '''Check if flow aggregate difference is bigger than threshold'''
+    # Get flow aggregate stats
+    port_stats = PortDiffStats.objects.filter(port_no=portNumber).last()
+    rx_bytes = port_stats.rx_bytes
+    
+    # Get threshold
+    configuration_instance = ConfigurationModel.objects.get(id = 1)
+    rx_bytes_threshold = configuration_instance.port_diff_threshold
+    
+    attack_true = rx_bytes > rx_bytes_threshold
+
+    if (attack_true):
+        attack_notification = AttackNotification.objects.create(
+            attack_type   = "Denial of Service", #DDoS, controller comprmise, etc
+            attack_vector = "Port " + portNumber, #Where the attack came from (flow_aggregate, port statistics)
+            percentage    = -1, # Percentage of the value from the machine learning model
+            attack_value  = rx_bytes,
+            threshold     = rx_bytes_threshold, # Threshold for value to be considered valid
+            attack_true   = attack_true # Attack is valid when percentage > threshold
+        )
+        # print("Wrote to database")
         return True
     else:
         return False
@@ -465,6 +544,15 @@ def ml_flow_agg_diff_stats(threshold):
 
 @task(name='summary')
 def sdn_data_retreieval():
+    flow_aggregate_threshold()
     flow_aggregate_difference_threshold()
+    port_threshold('1')
+    port_threshold('2')
+    port_threshold('3')
+    port_threshold('LOCAL')
+    port_diff_threshold('1')
+    port_diff_threshold('2')
+    port_diff_threshold('3')
+    port_diff_threshold('LOCAL')
     time.sleep(5)
     
