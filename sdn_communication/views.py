@@ -37,6 +37,16 @@ class FlowStatsView(APIView):
         #print(serializer.data)
         return Response(serializer.data)
 
+    def post(self, request):
+        '''Obtain flow statistics from database'''
+        data = json.loads(request.body.decode('utf-8'))
+        maxRecords = data['data']['maxRecords']
+        dpid = data['data']['filter']
+        flow_stats = FlowStats.objects.filter(dpid=dpid).order_by('-id')[:maxRecords]
+
+        serializer = FlowStatsSerializer(flow_stats, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
 class FlowAggregateStatsView(APIView):
 
     def get(self, request):
@@ -229,10 +239,12 @@ class AttackNotificationView(APIView):
             attack_notification = AttackNotification.objects.filter(
                 created__range=(awareStartDate, awareEndDate)
             ).order_by('-id')[:maxRecords]
+
+            # print(attack_notification)
         elif dataType == 'Port' or dataType == 'Port Difference':
             '''Return Port information'''
             port_no = data['data']['port_no']
-            print(port_no)
+            # print(port_no)
             if port_no == 'All':
                 attack_notification = AttackNotification.objects.filter(
                     created__range=(awareStartDate, awareEndDate)
