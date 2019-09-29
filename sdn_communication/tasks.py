@@ -454,7 +454,8 @@ def port_diff_threshold(portNumber):
     rx_bytes_threshold = configuration_instance.port_diff_threshold
     
     attack_true = rx_bytes > rx_bytes_threshold
-
+    
+    
     if (attack_true):
         attack_notification = AttackNotification.objects.create(
             attack_type   = "Denial of Service", #DDoS, controller comprmise, etc
