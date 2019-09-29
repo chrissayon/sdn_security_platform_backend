@@ -217,18 +217,32 @@ class AttackNotificationView(APIView):
         endDateMonth = data['data']['endDateMonth']
         endDateDay = data['data']['endDateDay']
         dataType = data['data']['filter']
-       
+
         startDate = datetime(startDateYear, startDateMonth, startDateDay)
         endDate = datetime(endDateYear, endDateMonth, endDateDay)
         
         awareStartDate = make_aware(startDate, timezone=pytz.timezone("Australia/Melbourne"))
         awareEndDate = make_aware(endDate, timezone=pytz.timezone("Australia/Melbourne"))
 
-        if dataType == 'All':
+        if (dataType == 'All'):
+            '''Return All Records'''
             attack_notification = AttackNotification.objects.filter(
                 created__range=(awareStartDate, awareEndDate)
             ).order_by('-id')[:maxRecords]
+        elif dataType == 'Port' or dataType == 'Port Difference':
+            '''Return Port information'''
+            port_no = data['data']['port_no']
+            print(port_no)
+            if port_no == 'All':
+                attack_notification = AttackNotification.objects.filter(
+                    created__range=(awareStartDate, awareEndDate)
+                ).filter(attack_vector=dataType).order_by('-id')[:maxRecords]
+            else:
+                attack_notification = AttackNotification.objects.filter(
+                    created__range=(awareStartDate, awareEndDate)
+                ).filter(attack_vector=dataType).filter(port_no=port_no).order_by('-id')[:maxRecords]
         else:
+            '''Return filtered object'''
             attack_notification = AttackNotification.objects.filter(
                 created__range=(awareStartDate, awareEndDate)
             ).filter(attack_vector=dataType).order_by('-id')[:maxRecords]

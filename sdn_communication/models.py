@@ -118,6 +118,7 @@ class AttackNotification(models.Model):
     '''Attack notification'''
     attack_type   = models.CharField(default = "No Data Yet", max_length = 50) #DDoS, controller comprmise, etc
     attack_vector = models.CharField(default = "No Data Yet", max_length = 50) #Where the attack came from (flow_aggregate, port statistics)
+    port_no       = models.CharField(default = "No Data Yet", max_length = 50)
     percentage    = models.FloatField(default = -1) # Percentage of the value from the machine learning model
     threshold     = models.FloatField(default = -1) # Threshold for value to be considered valid
     attack_value  = models.IntegerField(default = -1) # Value of the attack

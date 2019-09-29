@@ -431,7 +431,8 @@ def port_threshold(portNumber):
     if (attack_true):
         attack_notification = AttackNotification.objects.create(
             attack_type   = "Threshold Exceeded", #DDoS, controller comprmise, etc
-            attack_vector = "Port " + portNumber, #Where the attack came from (flow_aggregate, port statistics)
+            attack_vector = "Port", #Where the attack came from (flow_aggregate, port statistics)
+            port_no       = portNumber,
             percentage    = -1, # Percentage of the value from the machine learning model
             attack_value  = rx_bytes,
             threshold     = rx_bytes_threshold, # Threshold for value to be considered valid
@@ -457,7 +458,8 @@ def port_diff_threshold(portNumber):
     if (attack_true):
         attack_notification = AttackNotification.objects.create(
             attack_type   = "Denial of Service", #DDoS, controller comprmise, etc
-            attack_vector = "Port " + portNumber, #Where the attack came from (flow_aggregate, port statistics)
+            attack_vector = "Port Difference", #Where the attack came from (flow_aggregate, port statistics)
+            port_no       = portNumber,
             percentage    = -1, # Percentage of the value from the machine learning model
             attack_value  = rx_bytes,
             threshold     = rx_bytes_threshold, # Threshold for value to be considered valid
