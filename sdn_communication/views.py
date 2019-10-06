@@ -47,6 +47,15 @@ class FlowStatsView(APIView):
         serializer = FlowStatsSerializer(flow_stats, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
+# class FlowStatsView(APIView):
+#     def post(self, request):
+#         '''Obtain flow statistics from database'''
+#         data = json.loads(request.body.decode('utf-8'))
+#         postReque
+
+#         serializer = FlowStatsSerializer(flow_stats, many=True)
+#         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
 class FlowAggregateStatsView(APIView):
 
     def get(self, request):
@@ -322,7 +331,8 @@ class PortGraphView(APIView):
         port_stats_3 = PortStats.objects.filter(port_no='3').order_by('-id')[:1]
         port_stats_LOCAL = PortStats.objects.filter(port_no='LOCAL').order_by('-id')[:1]
         port_stats_result = list(chain(port_stats_1, port_stats_2, port_stats_3, port_stats_LOCAL))
-        serializer = PortStatsSerializer(port_stats_result)
+        port_stats_result_reversed = reversed(port_stats_result)
+        serializer = PortStatsSerializer(port_stats_result_reversed, many=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -335,7 +345,8 @@ class PortGraphView(APIView):
         port_stats_3 = PortStats.objects.filter(port_no='3').order_by('-id')[:maxRecords]
         port_stats_LOCAL = PortStats.objects.filter(port_no='LOCAL').order_by('-id')[:maxRecords]
         port_stats_result = list(chain(port_stats_1, port_stats_2, port_stats_3, port_stats_LOCAL))
-        serializer = PortStatsSerializer(port_stats_result, many=True)
+        port_stats_result_reversed = reversed(port_stats_result)
+        serializer = PortStatsSerializer(port_stats_result_reversed, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 class PortDiffGraphView(APIView):
@@ -347,7 +358,8 @@ class PortDiffGraphView(APIView):
         port_diff_stats_3 = PortDiffStats.objects.filter(port_no='3').order_by('-id')[:1]
         port_diff_stats_LOCAL = PortDiffStats.objects.filter(port_no='LOCAL').order_by('-id')[:1]
         port_diff_result = list(chain(port_diff_stats_1, port_diff_stats_2, port_diff_stats_3, port_diff_stats_LOCAL))
-        serializer = PortDiffStatsSerializer(port_diff_result, many=True)
+        port_diff_result_reversed = reversed(port_diff_result)
+        serializer = PortDiffStatsSerializer(port_diff_result_reversed, many=True)
         return Response(serializer.data)
     
     def post(self, request):
@@ -360,7 +372,8 @@ class PortDiffGraphView(APIView):
         port_diff_stats_3 = PortDiffStats.objects.filter(port_no='3').order_by('-id')[:maxRecords]
         port_diff_stats_LOCAL = PortDiffStats.objects.filter(port_no='LOCAL').order_by('-id')[:maxRecords]
         port_diff_result = list(chain(port_diff_stats_1, port_diff_stats_2, port_diff_stats_3, port_diff_stats_LOCAL))
-        serializer = PortDiffStatsSerializer(port_diff_result, many=True)
+        port_diff_result_reversed = reversed(port_diff_result)
+        serializer = PortDiffStatsSerializer(port_diff_result_reversed, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
@@ -377,6 +390,6 @@ class FlowAggregateDiffGraphView(APIView):
         data = json.loads(request.body.decode('utf-8'))
         maxRecords = data['data']['maxRecords']
         flow_agg_diff_stats = FlowAggregateDiffStats.objects.order_by('-id')[:maxRecords]
-
-        serializer = FlowAggregateDiffStatsSerializer(flow_agg_diff_stats, many=True)
+        flow_agg_diff_stats_reversed = reversed(flow_agg_diff_stats)
+        serializer = FlowAggregateDiffStatsSerializer(flow_agg_diff_stats_reversed, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
