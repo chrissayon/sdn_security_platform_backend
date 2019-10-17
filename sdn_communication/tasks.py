@@ -355,7 +355,8 @@ def write_port_diff_stats(port):
         rx_errors     = latest_port_stats.rx_errors     - penultimate_port_stats.rx_errors,
         tx_packets    = latest_port_stats.tx_packets    - penultimate_port_stats.tx_packets,
         latest_port_fk      = latest_port_stats,
-        penultimate_port_fk = penultimate_port_stats
+        penultimate_port_fk = penultimate_port_stats,
+        time_interval = latest_port_stats.created.timestamp() - penultimate_port_stats.created.timestamp()
     )
 
     port_stats_instance.save()
@@ -547,15 +548,20 @@ def ml_flow_agg_diff_stats(threshold):
 
 @task(name='summary')
 def sdn_data_retreieval():
-    flow_aggregate_threshold()
-    flow_aggregate_difference_threshold()
-    port_threshold('1')
-    port_threshold('2')
-    port_threshold('3')
-    port_threshold('LOCAL')
-    port_diff_threshold('1')
-    port_diff_threshold('2')
-    port_diff_threshold('3')
-    port_diff_threshold('LOCAL')
-    time.sleep(5)
+    # flow_aggregate_threshold()
+    # flow_aggregate_difference_threshold()
+    # port_threshold('1')
+    # port_threshold('2')
+    # port_threshold('3')
+    # port_threshold('LOCAL')
+    # port_diff_threshold('1')
+    # port_diff_threshold('2')
+    # port_diff_threshold('3')
+    # port_diff_threshold('LOCAL')
+    # time.sleep(5)
+    write_port_diff_stats(1)
+    write_port_diff_stats(2)
+    write_port_diff_stats(3)
+    write_port_diff_stats('LOCAL')
+
     

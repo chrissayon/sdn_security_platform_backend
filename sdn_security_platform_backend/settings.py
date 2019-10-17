@@ -26,7 +26,7 @@ CELERY_BEAT_SCHEDULE = {
  'send-summary-every-hour': {
        'task': 'summary',
         # There are 4 ways we can handle time, read further
-       'schedule': 5.0,
+       'schedule': 10.0,
         # If you're using any arguments
        'args': (),
     },
