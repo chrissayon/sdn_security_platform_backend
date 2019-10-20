@@ -2,7 +2,7 @@ from django.test import TestCase
 from sdn_communication.tasks import get_switch_number, get_switch_desc, get_flow_stats, get_agg_flow_stats, get_port_stats
 from sdn_communication.tasks import write_switch_desc, write_flow_stats, write_agg_flow_stats, write_port_stats
 from sdn_communication.tasks import write_flow_agg_diff_stats, write_port_diff_stats
-from sdn_communication.tasks import ml_flow_agg_diff_stats, flow_aggregate_difference_threshold
+from sdn_communication.tasks import ml_flow_agg_diff_stats, ml_port_diff_stats, flow_aggregate_difference_threshold
 from sdn_communication.tasks import flow_aggregate_threshold, port_threshold, port_diff_threshold
 from sdn_communication.models import Switch, DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats 
 from sdn_communication.models import FlowAggregateDiffStats, PortDiffStats, ConfigurationModel
@@ -137,10 +137,34 @@ class TasksMachineLearning(TestCase):
             # api_retry = 0
         )
 
+        ConfigurationModel.objects.create(
+            ml_threshold = 0.7, 
+            port_threshold = 500,
+            port_diff_threshold = 500,
+            flow_aggregate_threshold = 500,
+            flow_aggregate_difference_threshold = 500,
+        )
+
+        PortDiffStats.objects.create(
+            port_no = '1',
+            rx_bytes = 1000,
+            tx_bytes = 1000,
+            rx_packets = 1000,
+            tx_packets = 1000,
+            time_interval = 10.0,
+            latest_port_fk      = PortStats.objects.create(),
+            penultimate_port_fk = PortStats.objects.create()
+   
+        )
+
 
     def test_machine_learning_agg_stats(self):
-        '''Test machine learning'''
+        '''Test flow aggregate machine learning'''
         self.assertTrue(ml_flow_agg_diff_stats(0.1))
+
+    def test_machine_learning_port_diff(self):
+        '''Test port machine learning'''
+        self.assertTrue(ml_port_diff_stats())
 
 class TasksThresholdsPass(TestCase):
     def setUp(self):
@@ -209,7 +233,7 @@ class TasksThresholdsFail(TestCase):
         )
 
         ConfigurationModel.objects.create(
-            ml_threshold = 0.01, 
+            ml_threshold = 0.7, 
             port_threshold = 1000,
             port_diff_threshold = 1000,
             flow_aggregate_threshold = 1000,

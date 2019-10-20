@@ -509,6 +509,38 @@ def ml_flow_agg_diff_stats(threshold):
     # print(result)
     return True
 
+def ml_port_diff_stats():
+
+    model = tf.keras.models.load_model('best_model_v22019_10_20t21_32_39.h5')
+    port_diff_stats = PortDiffStats.objects.last()
+    configuration_instance = ConfigurationModel.objects.get(id = 1)
+    ml_threshold = configuration_instance.ml_threshold
+
+    # print(flow_agg_diff_stats.packet_count)
+    # time.sleep(5)
+    network_data = np.array([[
+        port_diff_stats.rx_packets,
+        port_diff_stats.tx_packets,
+        port_diff_stats.rx_bytes,
+        port_diff_stats.tx_bytes,
+        port_diff_stats.time_interval,
+    ]])
+    result = loaded_model.predict(network_data)
+    # print(result[0][0])
+
+    attack_true = (result[0][0] > ml_threshold)
+    # print(attack_true)
+
+    if (attack_true):
+        attack_notification = AttackNotification.objects.create(
+            attack_type   = "MLDenial of Service", #DDoS, controller comprmise, etc
+            attack_vector = "Flow Aggregate", #Where the attack came from (flow_aggregate, port statistics)
+            percentage    = result[0][0], # Percentage of the value from the machine learning model
+            threshold     = threshold, # Threshold for value to be considered valid
+            attack_true   = attack_true # Attack is valid when percentage > threshold
+        )
+
+    return True
 
 # @task(name='summary')
 # def sdn_data_retreieval():
@@ -546,8 +578,8 @@ def ml_flow_agg_diff_stats(threshold):
 #     time.sleep(5)
 #     # t1 = time.time()
 
-@task(name='summary')
-def sdn_data_retreieval():
+# @task(name='summary')
+# def sdn_data_retreieval():
     # flow_aggregate_threshold()
     # flow_aggregate_difference_threshold()
     # port_threshold('1')
@@ -559,9 +591,4 @@ def sdn_data_retreieval():
     # port_diff_threshold('3')
     # port_diff_threshold('LOCAL')
     # time.sleep(5)
-    write_port_diff_stats(1)
-    write_port_diff_stats(2)
-    write_port_diff_stats(3)
-    write_port_diff_stats('LOCAL')
-
     
