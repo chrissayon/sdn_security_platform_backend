@@ -511,7 +511,7 @@ def ml_flow_agg_diff_stats(threshold):
 
 def ml_port_diff_stats():
 
-    model = tf.keras.models.load_model('best_model_v22019_10_20t21_32_39.h5')
+    loaded_model = tf.keras.models.load_model('best_model_v22019_10_20t21_32_39.h5')
     port_diff_stats = PortDiffStats.objects.last()
     configuration_instance = ConfigurationModel.objects.get(id = 1)
     ml_threshold = configuration_instance.ml_threshold
