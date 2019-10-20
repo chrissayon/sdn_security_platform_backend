@@ -4,13 +4,13 @@ from sdn_communication.tasks import write_switch_desc, write_flow_stats, write_a
 from sdn_communication.tasks import write_flow_agg_diff_stats, write_port_diff_stats
 from sdn_communication.tasks import ml_flow_agg_diff_stats, ml_port_diff_stats, flow_aggregate_difference_threshold
 from sdn_communication.tasks import flow_aggregate_threshold, port_threshold, port_diff_threshold
-from sdn_communication.models import Switch, DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats 
+from sdn_communication.models import Switch, DescStats, FlowStats, FlowAggregateStats, TableStats, PortStats
 from sdn_communication.models import FlowAggregateDiffStats, PortDiffStats, ConfigurationModel
 from rest_framework import status
 from requests.models import Response
 
 class TasksTestCase(TestCase):
-    
+
     @classmethod
     def setUpTestData(cls):
 
@@ -35,7 +35,7 @@ class TasksTestCase(TestCase):
                 "dl_src"  : "00:00:00:00:00:00", \
                 "in_port" : "3" }, \
             "serial_num" : "1234" }]}'
-        
+
         # Description hardware response
         cls.switch_desc_response = Response()
         cls.switch_desc_response.status_code = 200
@@ -44,7 +44,7 @@ class TasksTestCase(TestCase):
             "hw_desc"    : "Open VSwitch",  \
             "sw_desc"    : "None",          \
             "serial_num" : "Nicira, Inc." }}'
-        
+
         cls.flow_agg_stats_response = Response()
         cls.flow_agg_stats_response.status_code = 200
         cls.flow_agg_stats_response._content = b'{ "1" : [{\
@@ -98,11 +98,11 @@ class TasksDiffTestCase(TestCase):
         PortStats.objects.create(tx_dropped = 20, port_no = 3)
         PortStats.objects.create(tx_dropped = 40, port_no = 3)
         PortStats.objects.create(tx_dropped = 80, port_no = 3)
-        
+
         FlowAggregateStats.objects.create(byte_count = 100)
         FlowAggregateStats.objects.create(byte_count = 200)
         FlowAggregateStats.objects.create(byte_count = 350)
-    
+
     def test_flow_agg_diff(self):
         """Writing the flow aggregate difference of two records"""
         self.assertEqual(write_flow_agg_diff_stats(), True)
@@ -118,13 +118,13 @@ class TasksDiffTestCase(TestCase):
         self.assertEqual(port_stats_diff_instance.tx_dropped, 10)
 
 class TasksDiffTestCaseNoModel(TestCase):
-    
+
     def test_flow_agg_diff_no_model(self):
         """Checking the port value difference of two records"""
         self.assertFalse(write_flow_agg_diff_stats())
         write_flow_agg_diff_stats()
         self.assertFalse(False)
- 
+
 class TasksMachineLearning(TestCase):
     def setUp(self):
         FlowAggregateDiffStats.objects.create(
@@ -138,7 +138,7 @@ class TasksMachineLearning(TestCase):
         )
 
         ConfigurationModel.objects.create(
-            ml_threshold = 0.7, 
+            ml_threshold = 0.7,
             port_threshold = 500,
             port_diff_threshold = 500,
             flow_aggregate_threshold = 500,
@@ -154,7 +154,28 @@ class TasksMachineLearning(TestCase):
             time_interval = 10.0,
             latest_port_fk      = PortStats.objects.create(),
             penultimate_port_fk = PortStats.objects.create()
-   
+        )
+
+        PortDiffStats.objects.create(
+            port_no = '2',
+            rx_bytes = 1000,
+            tx_bytes = 1000,
+            rx_packets = 1000,
+            tx_packets = 1000,
+            time_interval = 10.0,
+            latest_port_fk      = PortStats.objects.create(),
+            penultimate_port_fk = PortStats.objects.create()
+        )
+
+        PortDiffStats.objects.create(
+            port_no = '3',
+            rx_bytes = 1000,
+            tx_bytes = 1000,
+            rx_packets = 1000,
+            tx_packets = 1000,
+            time_interval = 10.0,
+            latest_port_fk      = PortStats.objects.create(),
+            penultimate_port_fk = PortStats.objects.create()
         )
 
 
@@ -164,12 +185,14 @@ class TasksMachineLearning(TestCase):
 
     def test_machine_learning_port_diff(self):
         '''Test port machine learning'''
-        self.assertTrue(ml_port_diff_stats())
+        self.assertTrue(ml_port_diff_stats(1))
+        self.assertTrue(ml_port_diff_stats(2))
+        self.assertTrue(ml_port_diff_stats(3))
 
 class TasksThresholdsPass(TestCase):
     def setUp(self):
         ConfigurationModel.objects.create(
-            ml_threshold = 0.01, 
+            ml_threshold = 0.01,
             port_threshold = 500,
             port_diff_threshold = 500,
             flow_aggregate_threshold = 500,
@@ -209,7 +232,7 @@ class TasksThresholdsPass(TestCase):
         '''Test Flow Aggregate Difference Threshold'''
         result = flow_aggregate_difference_threshold()
         self.assertTrue(result)
-    
+
     def test_port_threshold_pass(self):
         '''Test Port Threshold'''
         result = port_threshold('1')
@@ -233,13 +256,13 @@ class TasksThresholdsFail(TestCase):
         )
 
         ConfigurationModel.objects.create(
-            ml_threshold = 0.7, 
+            ml_threshold = 0.7,
             port_threshold = 1000,
             port_diff_threshold = 1000,
             flow_aggregate_threshold = 1000,
             flow_aggregate_difference_threshold = 1000,
         )
-    
+
         FlowAggregateStats.objects.create(byte_count = 0)
 
 
@@ -262,7 +285,7 @@ class TasksThresholdsFail(TestCase):
         '''Test Flow Aggregate Difference Threshold'''
         result = flow_aggregate_difference_threshold()
         self.assertFalse(result)
-    
+
     def test_port_threshold_fail(self):
         '''Test Port Threshold'''
         result = port_threshold('1')

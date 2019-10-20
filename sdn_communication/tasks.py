@@ -368,11 +368,11 @@ def flow_aggregate_threshold():
     # Get flow aggregate stats
     flow_agg_stats = FlowAggregateStats.objects.last()
     byte_count = flow_agg_stats.byte_count
-    
+
     # Get threshold
     configuration_instance = ConfigurationModel.objects.get(id = 1)
     byte_count_threshold = configuration_instance.flow_aggregate_threshold
-    
+
     attack_true = byte_count > byte_count_threshold
     # print(byte_count)
     # print(byte_count_threshold)
@@ -395,11 +395,11 @@ def flow_aggregate_difference_threshold():
     # Get flow aggregate stats
     flow_agg_diff_stats = FlowAggregateDiffStats.objects.last()
     byte_count = flow_agg_diff_stats.byte_count
-    
+
     # Get threshold
     configuration_instance = ConfigurationModel.objects.get(id = 1)
     byte_count_threshold = configuration_instance.flow_aggregate_difference_threshold
-    
+
     attack_true = byte_count > byte_count_threshold
     # print(byte_count)
     # print(byte_count_threshold)
@@ -422,11 +422,11 @@ def port_threshold(portNumber):
     # Get flow aggregate stats
     port_stats = PortStats.objects.filter(port_no=portNumber).last()
     rx_bytes = port_stats.rx_bytes
-    
+
     # Get threshold
     configuration_instance = ConfigurationModel.objects.get(id = 1)
     rx_bytes_threshold = configuration_instance.port_threshold
-    
+
     attack_true = rx_bytes > rx_bytes_threshold
 
     if (attack_true):
@@ -449,14 +449,14 @@ def port_diff_threshold(portNumber):
     # Get flow aggregate stats
     port_stats = PortDiffStats.objects.filter(port_no=portNumber).last()
     rx_bytes = port_stats.rx_bytes
-    
+
     # Get threshold
     configuration_instance = ConfigurationModel.objects.get(id = 1)
     rx_bytes_threshold = configuration_instance.port_diff_threshold
-    
+
     attack_true = rx_bytes > rx_bytes_threshold
-    
-    
+
+
     if (attack_true):
         attack_notification = AttackNotification.objects.create(
             attack_type   = "Denial of Service", #DDoS, controller comprmise, etc
@@ -473,7 +473,7 @@ def port_diff_threshold(portNumber):
         return False
 
 def ml_flow_agg_diff_stats(threshold):
-    model = tf.keras.models.load_model('my_model.h5')
+    model = tf.keras.models.load_model('flow_agg_model.h5')
     flow_agg_diff_stats = FlowAggregateDiffStats.objects.last()
     # print(flow_agg_diff_stats.packet_count)
     # time.sleep(5)
@@ -498,26 +498,17 @@ def ml_flow_agg_diff_stats(threshold):
             attack_true   = attack_true # Attack is valid when percentage > threshold
         )
 
-    # print(attack_notification.attack_type)
-    # print(attack_notification.attack_vector)
-    # print(attack_notification.percentage)
-    # print(attack_notification.threshold)
-    # print(attack_notification.attack_true)
-    # print(datetime.datetime.now().timestamp() - flow_agg_diff_stats.created.timestamp())
-    # print(flow_agg_diff_stats.time_interval)
-    # # print("\n")
-    # print(result)
     return True
 
-def ml_port_diff_stats():
+def ml_port_diff_stats(portNumber):
 
-    loaded_model = tf.keras.models.load_model('best_model_v22019_10_20t21_32_39.h5')
-    port_diff_stats = PortDiffStats.objects.last()
+    loaded_model = tf.keras.models.load_model('port_model.h5')
+    port_diff_stats = PortDiffStats.objects.filter(port_no=portNumber).last()
     configuration_instance = ConfigurationModel.objects.get(id = 1)
     ml_threshold = configuration_instance.ml_threshold
+    # loaded_model.summary(
 
-    # print(flow_agg_diff_stats.packet_count)
-    # time.sleep(5)
+
     network_data = np.array([[
         port_diff_stats.rx_packets,
         port_diff_stats.tx_packets,
@@ -530,53 +521,57 @@ def ml_port_diff_stats():
 
     attack_true = (result[0][0] > ml_threshold)
     # print(attack_true)
+    print(portNumber)
+    print(result[0][0])
 
     if (attack_true):
         attack_notification = AttackNotification.objects.create(
-            attack_type   = "MLDenial of Service", #DDoS, controller comprmise, etc
-            attack_vector = "Flow Aggregate", #Where the attack came from (flow_aggregate, port statistics)
+            attack_type   = "Machine Learning Triggered: Denial of Service", #DDoS, controller comprmise, etc
+            attack_vector = "Port Difference", #Where the attack came from (flow_aggregate, port statistics)
+            port_no       = portNumber,
+            attack_value  = result[0][0],
             percentage    = result[0][0], # Percentage of the value from the machine learning model
-            threshold     = threshold, # Threshold for value to be considered valid
+            threshold     = ml_threshold, # Threshold for value to be considered valid
             attack_true   = attack_true # Attack is valid when percentage > threshold
         )
 
     return True
 
-# @task(name='summary')
-# def sdn_data_retreieval():
-#     switch_number = get_switch_number()
-#     write_switch_number(switch_number)
+@task(name='summary')
+def sdn_data_retreieval():
+    switch_number = get_switch_number()
+    write_switch_number(switch_number)
 
-#     # Hardware description
-#     switch_desc = get_switch_desc()
-#     switch_desc_result = write_switch_desc(switch_desc)
+    # Hardware description
+    switch_desc = get_switch_desc()
+    switch_desc_result = write_switch_desc(switch_desc)
 
-#     # FLow stats
-#     flow_stats = get_flow_stats()
-#     flow_stats_result = write_flow_stats(flow_stats)
+    # FLow stats
+    flow_stats = get_flow_stats()
+    flow_stats_result = write_flow_stats(flow_stats)
 
-#     # Flow Aggregate stats
-#     agg_flow_stats = get_agg_flow_stats()
-#     agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
+    # Flow Aggregate stats
+    agg_flow_stats = get_agg_flow_stats()
+    agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
 
-#     # Port Stats
-#     port_stats = get_port_stats()
-#     port_stats_result = write_port_stats(port_stats)
+    # Port Stats
+    port_stats = get_port_stats()
+    port_stats_result = write_port_stats(port_stats)
 
-#     # Flow Aggregate Stats difference
-#     flow_agg_diff_stats = write_flow_agg_diff_stats()
+    # Flow Aggregate Stats difference
+    flow_agg_diff_stats = write_flow_agg_diff_stats()
 
-#     # Port stat difference
-#     write_port_diff_stats(1)
-#     write_port_diff_stats(2)
-#     write_port_diff_stats(3)
-#     write_port_diff_stats('LOCAL')
+    # Port stat difference
+    write_port_diff_stats(1)
+    write_port_diff_stats(2)
+    write_port_diff_stats(3)
+    write_port_diff_stats('LOCAL')
 
-#     # # Run port data through classifier
-#     ml_flow_agg_diff_stats(0)
-#     # t0 = time.time()
-#     time.sleep(5)
-#     # t1 = time.time()
+    # # Run port data through classifier
+    ml_port_diff_stats(1)
+    ml_port_diff_stats(2)
+    ml_port_diff_stats(3)
+    
 
 # @task(name='summary')
 # def sdn_data_retreieval():
@@ -591,4 +586,3 @@ def ml_port_diff_stats():
     # port_diff_threshold('3')
     # port_diff_threshold('LOCAL')
     # time.sleep(5)
-    
