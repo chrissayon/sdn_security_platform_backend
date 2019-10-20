@@ -550,28 +550,28 @@ def sdn_data_retreieval():
     flow_stats = get_flow_stats()
     flow_stats_result = write_flow_stats(flow_stats)
 
-    # # Flow Aggregate stats
-    # agg_flow_stats = get_agg_flow_stats()
-    # agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
-    #
-    # # Port Stats
-    # port_stats = get_port_stats()
-    # port_stats_result = write_port_stats(port_stats)
-    #
-    # # Flow Aggregate Stats difference
-    # flow_agg_diff_stats = write_flow_agg_diff_stats()
-    #
-    # # Port stat difference
-    # write_port_diff_stats(1)
-    # write_port_diff_stats(2)
-    # write_port_diff_stats(3)
+    # Flow Aggregate stats
+    agg_flow_stats = get_agg_flow_stats()
+    agg_flow_stats_result = write_agg_flow_stats(agg_flow_stats)
+
+    # Port Stats
+    port_stats = get_port_stats()
+    port_stats_result = write_port_stats(port_stats)
+
+    # Flow Aggregate Stats difference
+    flow_agg_diff_stats = write_flow_agg_diff_stats()
+
+    # Port stat difference
+    write_port_diff_stats(1)
+    write_port_diff_stats(2)
+    write_port_diff_stats(3)
     # write_port_diff_stats('LOCAL')
-    #
-    # # # Run port data through classifier
-    # ml_port_diff_stats(1)
-    # ml_port_diff_stats(2)
-    # ml_port_diff_stats(3)
-    #
+
+    # # Run port data through classifier
+    ml_port_diff_stats(1)
+    ml_port_diff_stats(2)
+    ml_port_diff_stats(3)
+
 
 # @task(name='summary')
 # def sdn_data_retreieval():
