@@ -512,7 +512,6 @@ def ml_flow_agg_diff_stats(threshold):
 
 def ml_port_diff_stats(portNumber):
 
-    loaded_model = tf.keras.models.load_model('udp_port_model.h5')
     port_diff_stats = PortDiffStats.objects.filter(port_no=portNumber).last()
     configuration_instance = ConfigurationModel.objects.get(id = 1)
     ml_threshold = configuration_instance.ml_threshold
@@ -527,15 +526,6 @@ def ml_port_diff_stats(portNumber):
     ]])
 
     # network_data = np.array([[
-    #     port_diff_stats.tx_packets,
-    #     port_diff_stats.rx_packets,
-    #     port_diff_stats.tx_bytes,
-    #     port_diff_stats.rx_bytes,
-    #     port_diff_stats.time_interval,
-    # ]])
-
-
-    # network_data = np.array([[
     #     port_diff_stats.rx_packets,
     #     0,
     #     port_diff_stats.rx_bytes,
@@ -543,11 +533,15 @@ def ml_port_diff_stats(portNumber):
     #     port_diff_stats.time_interval,
     # ]])
 
+    loaded_model = tf.keras.models.load_model('udp_port_model.h5')
     result = loaded_model.predict(network_data)
-    # print(result[0][0])
 
     attack_true = (result[0][0] > ml_threshold)
-    # print(attack_true)
+
+    # if (port_diff_stats.rx_bytes > 20000) & (port_diff_stats.rx_bytes > 20000) & ((ml_threshold > 0.8) & (ml_threshold <= 1.0)):
+    #     attack_true = 1
+    #     result[0][0] = 1.0
+
     print(portNumber)
     print(result[0][0])
 
@@ -593,6 +587,19 @@ def sdn_data_retreieval():
     write_port_diff_stats(2)
     write_port_diff_stats(3)
     # write_port_diff_stats('LOCAL')
+
+    # Normal Thresholds
+    flow_aggregate_threshold()
+    flow_aggregate_difference_threshold()
+    port_threshold('1')
+    port_threshold('2')
+    port_threshold('3')
+    port_threshold('LOCAL')
+    port_diff_threshold('1')
+    port_diff_threshold('2')
+    port_diff_threshold('3')
+    port_diff_threshold('LOCAL')
+
 
     # # Run port data through classifier
     ml_port_diff_stats(1)
