@@ -220,10 +220,15 @@ def write_agg_flow_stats(response_data):
         #         )
 
         for i in range(0, max_loop):
+            if int(json_data[i]["byte_count"]) > 9223372036854775807:
+                byte_count = 9223372036854775807
+            else:
+                byte_count = int(json_data[i]["byte_count"])
+
             flow_stats_instance = FlowAggregateStats.objects.create(
                 dpid         = dict_keys[0],
                 packet_count = json_data[i]["packet_count"],
-                byte_count   = json_data[i]["byte_count"],
+                byte_count   = byte_count,
                 flow_count   = json_data[i]["flow_count"],
             )
 
@@ -248,6 +253,11 @@ def write_flow_stats(response_data):
         # Cycle through all the flow entries
         for i in range(0, max_loop):
             try:
+                if int(json_data[i]["byte_count"]) > 9223372036854775807:
+                    byte_count = 9223372036854775807
+                else:
+                    byte_count = int(json_data[i]["byte_count"])
+
                 # If entry already exists in database, update it
                 flow_stats_instance               = FlowStats.objects.get(id = i + 1)
                 flow_stats_instance.dpid          = dict_keys[0]
@@ -256,7 +266,7 @@ def write_flow_stats(response_data):
                 flow_stats_instance.cookie        = json_data[i]["cookie"]
                 flow_stats_instance.packet_count  = json_data[i]["packet_count"]
                 flow_stats_instance.hard_timeout  = json_data[i]["hard_timeout"]
-                flow_stats_instance.byte_count    = json_data[i]["byte_count"]
+                flow_stats_instance.byte_count    = byte_count
                 flow_stats_instance.duration_sec  = json_data[i]["duration_sec"]
                 flow_stats_instance.duration_nsec = json_data[i]["duration_nsec"]
                 flow_stats_instance.priority      = json_data[i]["priority"]
@@ -502,20 +512,37 @@ def ml_flow_agg_diff_stats(threshold):
 
 def ml_port_diff_stats(portNumber):
 
-    loaded_model = tf.keras.models.load_model('port_model.h5')
+    loaded_model = tf.keras.models.load_model('udp_port_model.h5')
     port_diff_stats = PortDiffStats.objects.filter(port_no=portNumber).last()
     configuration_instance = ConfigurationModel.objects.get(id = 1)
     ml_threshold = configuration_instance.ml_threshold
     # loaded_model.summary(
 
-
     network_data = np.array([[
-        port_diff_stats.rx_packets,
         port_diff_stats.tx_packets,
-        port_diff_stats.rx_bytes,
+        port_diff_stats.rx_packets,
         port_diff_stats.tx_bytes,
+        port_diff_stats.rx_bytes,
         port_diff_stats.time_interval,
     ]])
+
+    # network_data = np.array([[
+    #     port_diff_stats.tx_packets,
+    #     port_diff_stats.rx_packets,
+    #     port_diff_stats.tx_bytes,
+    #     port_diff_stats.rx_bytes,
+    #     port_diff_stats.time_interval,
+    # ]])
+
+
+    # network_data = np.array([[
+    #     port_diff_stats.rx_packets,
+    #     0,
+    #     port_diff_stats.rx_bytes,
+    #     0,
+    #     port_diff_stats.time_interval,
+    # ]])
+
     result = loaded_model.predict(network_data)
     # print(result[0][0])
 
@@ -571,7 +598,6 @@ def sdn_data_retreieval():
     ml_port_diff_stats(1)
     ml_port_diff_stats(2)
     ml_port_diff_stats(3)
-
 
 # @task(name='summary')
 # def sdn_data_retreieval():

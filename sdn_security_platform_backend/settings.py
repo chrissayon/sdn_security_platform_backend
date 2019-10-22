@@ -23,10 +23,10 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 # Let's make things happen
 CELERY_BEAT_SCHEDULE = {
- 'send-summary-every-hour': {
+ 'sdn_task': {
        'task': 'summary',
         # There are 4 ways we can handle time, read further
-       'schedule': 10.0,
+       'schedule': 12.0,
         # If you're using any arguments
        'args': (),
     },
